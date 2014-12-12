@@ -56,6 +56,29 @@ auto make_scalar_expression(const Evaluator& evaluator) {
   return ScalarExpression<Evaluator>(evaluator);
 }
 
+///////////////////////////////
+// NumericArrayMapExpression //
+///////////////////////////////
+
+template<class Shape, class Evaluator>
+class NumericArrayMapExpression 
+  : Shape
+{
+ public:
+  NumericArrayMapExpression(const Shape& shape, const Evaluator& evaluator)
+    : Shape(shape)
+    , _evaluator(evaluator)
+  {}
+  const Evaluator& evaluator() const { return _evaluator; }
+ private:
+  Evaluator _evaluator;
+};
+
+template<class Shape, class Evaluator>
+auto make_numeric_array_map_expression(const Shape& shape, const Evaluator& evaluator) {
+  return NumericArrayMapExpression<Shape, Evaluator>(shape, evaluator);
+}
+
 /////////////////////
 // make_expression //
 /////////////////////

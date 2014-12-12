@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 namespace echo { namespace numeric_array {
 
 /////////////////////
@@ -77,6 +79,49 @@ class NumericArrayEvaluator {
 template<class Pointer>
 auto make_numeric_array_evaluator(Pointer data) {
   return NumericArrayEvaluator<Pointer>(data);
+}
+
+//////////////////////////////
+// NumericArrayMapEvaluator //
+//////////////////////////////
+
+namespace detail {
+
+template<class Function, int... Indexes, class... Evaluators>
+decltype(auto) apply_map(fatal::constant_sequence<int, Indexes...>
+                       , Index<1> index
+                       , const Function& function
+                       , const std::tuple<Evaluators...>& evaluators) 
+{
+  return function(std::get<Indexes>(evaluators)(index)...);
+}
+
+} //end namespace detail
+
+template<class Function, class... Evaluators>
+class NumericArrayMapEvaluator
+  : Function
+{
+ public:
+  NumericArrayMapEvaluator(const Function& function, const Evaluators&... evaluators)
+    : Function(function)
+    , _evaluators(evaluators...)
+  {}
+  decltype(auto) operator()(Index<1> index) const {
+    return detail::apply_map(fatal::constant_range<0, sizeof...(Evaluators)>()
+                           , index
+                           , static_cast<const Function&>(*this)
+                           , _evaluators);
+  }
+ private:
+  std::tuple<Evaluators...> _evaluators;  
+};
+
+template<class Function, class... Evaluators>
+auto make_numeric_array_map_evaluator(const Function& function
+                                    , const Evaluators&... evaluators)
+{
+  return NumericArrayMapEvaluator<Function, Evaluators...>(function, evaluators...);
 }
 
 }} //end namespace echo::numeric_array
