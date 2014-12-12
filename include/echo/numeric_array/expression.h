@@ -1,6 +1,8 @@
 #pragma once
 
+#include <echo/assert.h>
 #include <echo/numeric_array/evaluator.h>
+#include <echo/k_array/shape.h>
 
 namespace echo { namespace numeric_array {
 
@@ -81,6 +83,31 @@ auto make_expression(numeric_array_expression_tag, const Scalar& scalar) {
 // make_binary_arithmetic_expression //
 ///////////////////////////////////////
 
+namespace detail {
+
+template<
+    class Shape
+  , class Functor
+  , class Lhs
+  , class Rhs
+>
+auto make_binary_arithmetic_expression(
+        const Shape& shape
+      , const Functor& functor
+      , const Lhs& lhs
+      , const Rhs& rhs)
+{
+  return make_numeric_array_expression(
+              shape
+            , make_binary_function_evaluator(
+                      functor
+                    , lhs.evaluator()
+                    , rhs.evaluator())
+  );
+}
+
+} //end namespace detail
+
 template<
     class Functor
   , class Shape1
@@ -94,14 +121,38 @@ auto make_binary_arithmetic_expression(
       , const NumericArrayExpression<Shape1, Evaluator1>& lhs
       , const NumericArrayExpression<Shape2, Evaluator2>& rhs)
 {
-  return make_numeric_array_expression(
-              lhs.shape()
-            , functor
-            , make_binary_function_evaluator(
-                      functor
-                    , lhs.evaluator()
-                    , rhs.evaluator())
-  );
+  ECHO_ASSERT_MSG("shapes must be equal", lhs.shape() == rhs.shape());
+  return detail::make_binary_arithmetic_expression(lhs.shape(), functor, lhs, rhs);
+}
+
+template<
+    class Functor
+  , class Shape1
+  , class Evaluator1
+  , class Evaluator2
+>
+auto make_binary_arithmetic_expression(
+        numeric_array_expression_tag
+      , const Functor& functor
+      , const NumericArrayExpression<Shape1, Evaluator1>& lhs
+      , const ScalarExpression<Evaluator2>& rhs)
+{
+  return detail::make_binary_arithmetic_expression(lhs.shape(), functor, lhs, rhs);
+}
+
+template<
+    class Functor
+  , class Shape1
+  , class Evaluator1
+  , class Evaluator2
+>
+auto make_binary_arithmetic_expression(
+        numeric_array_expression_tag
+      , const Functor& functor
+      , const ScalarExpression<Evaluator2>& lhs
+      , const NumericArrayExpression<Shape1, Evaluator1>& rhs)
+{
+  return detail::make_binary_arithmetic_expression(rhs.shape(), functor, lhs, rhs);
 }
 
 }} //end namespace echo::numeric_array
