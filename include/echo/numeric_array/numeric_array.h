@@ -22,8 +22,10 @@ class NumericArray
         numeric_array_expression_tag
       , NumericArray<Scalar, Shape, Allocator>
     >
+  , public KArrayAssignment<NumericArray<Scalar, Shape, Allocator>, Scalar>
 {
   using BaseKArray = KArray<Scalar, Shape, Allocator>;
+  using AssignmentBase = KArrayAssignment<NumericArray<Scalar, Shape, Allocator>, Scalar>;
   using BaseExpressionTemplateAssignment = 
       ExpressionTemplateAssignment<
           numeric_array_expression_tag
@@ -31,7 +33,7 @@ class NumericArray
       >;
  public:
   using BaseKArray::BaseKArray; 
-  using BaseKArray::operator=;
+  using AssignmentBase::operator=;
   using BaseExpressionTemplateAssignment::operator=;
 };
 

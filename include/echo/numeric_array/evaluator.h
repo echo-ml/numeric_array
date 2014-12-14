@@ -1,6 +1,8 @@
 #pragma once
 
 #include <tuple>
+#include <echo/index.h>
+#include <echo/k_array.h>
 
 namespace echo { namespace numeric_array {
 
@@ -108,7 +110,7 @@ class NumericArrayMapEvaluator
     , _evaluators(evaluators...)
   {}
   decltype(auto) operator()(Index<1> index) const {
-    return detail::apply_map(fatal::constant_range<0, sizeof...(Evaluators)>()
+    return detail::apply_map(fatal::constant_range<int, 0, sizeof...(Evaluators)>()
                            , index
                            , static_cast<const Function&>(*this)
                            , _evaluators);

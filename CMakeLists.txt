@@ -30,4 +30,6 @@ install(FILES ${headers-numeric_array} DESTINATION include/echo/numeric_array)
 
 add_catch_test(numeric_array-test ${unittests})
 
+target_link_libraries(numeric_array-test tbb)
+
 # add_subdirectory(unittest)
