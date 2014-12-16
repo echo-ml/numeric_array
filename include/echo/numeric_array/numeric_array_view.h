@@ -23,6 +23,7 @@ class NumericArrayView
     >
 {
   using BaseKArray = KArrayView<Pointer, Shape>;
+  // using AssignmentBase = KArrayAssignment<NumericArrayView<Pointer, Shape>, Scalar>;
   using BaseExpressionTemplateAssignment = 
       ExpressionTemplateConstAssignment<
           numeric_array_expression_tag
@@ -30,8 +31,8 @@ class NumericArrayView
       >;
  public:
   using BaseKArray::BaseKArray; 
-  using BaseKArray::operator=;
   using BaseExpressionTemplateAssignment::operator=;
+  // using AssignmentBase::operator=;
 };
 
 }} //end namespace echo::numeric_array
