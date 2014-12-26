@@ -91,62 +91,6 @@ auto make_expression(numeric_array_expression_tag
   return expression;
 }
 
-///////////////
-// get_shape //
-///////////////
-
-template<class Shape1, class Evaluator1, class... NodesRest>
-const auto& get_shape(const NumericArrayExpression<Shape1, Evaluator1>& node_first
-                    , const NodesRest&... nodes_rest) 
-{
-  return node_first.shape();
-}
-
-template<class NodeFirst, class... NodesRest>
-const auto& get_shape(const NodeFirst& node_first, const NodesRest&... nodes_rest) {
-  return get_shape(nodes_rest...);
-}
-
-////////////////////////////
-// verify_shapes_match //
-////////////////////////////
-
-namespace detail {
-
-template<class Shape1>
-void verify_shapes_match(const Shape1&) {
-}
-
-template<class Shape1, class NodeFirst, class... NodesRest>
-void verify_shapes_match(const Shape1& shape1
-                , const NodeFirst& node_first
-                , const NodesRest&... nodes_rest);
-
-template<class Shape1, class Shape2, class Evaluator2, class... NodesRest> 
-void verify_shapes_match(const Shape1& shape1
-                , const NumericArrayExpression<Shape2, Evaluator2>& node
-                , const NodesRest&... nodes_rest)
-{
-  ECHO_ASSERT(shape1 == node.shape());
-  verify_shapes_match(shape1, nodes_rest...);
-}
-
-template<class Shape1, class NodeFirst, class... NodesRest>
-void verify_shapes_match(const Shape1& shape1
-                , const NodeFirst& node_first
-                , const NodesRest&... nodes_rest)
-{
-  verify_shapes_match(shape1, nodes_rest...);
-}
-
-
-} //end namespace detail
-
-template<class... Expressions>
-void verify_shapes_match(const Expressions&... expressions) {
-  detail::verify_shapes_match(get_shape(expressions...), expressions...);
-}
-
 /////////////////////////////////////
 // make_binary_function_expression //
 /////////////////////////////////////
@@ -187,8 +131,8 @@ auto make_binary_arithmetic_expression(
       , const Lhs& lhs
       , const Rhs& rhs)
 {
-  verify_shapes_match(lhs, rhs);
-  return make_binary_function_expression(get_shape(lhs, rhs), functor, lhs, rhs);
+  assert_any_shapes_match(lhs, rhs);
+  return make_binary_function_expression(get_first_shape(lhs, rhs), functor, lhs, rhs);
 }
 
 ////////////////////////////////
@@ -207,8 +151,8 @@ auto make_assignment_expression(
       , const NumericArrayExpression<Shape1, Evaluator1>& lhs
       , const Rhs& rhs)
 {
-  verify_shapes_match(lhs, rhs);
-  return make_binary_function_expression(get_shape(lhs, rhs), functor, lhs, rhs);
+  assert_any_shapes_match(lhs, rhs);
+  return make_binary_function_expression(get_first_shape(lhs, rhs), functor, lhs, rhs);
 }
 
 /////////////////////////
@@ -225,9 +169,9 @@ auto make_map_expression(
       , const Functor& functor
       , const Nodes&... nodes)
 {
-  verify_shapes_match(nodes...);
+  assert_any_shapes_match(nodes...);
   return make_numeric_array_expression(
-      get_shape(nodes...)
+      get_first_shape(nodes...)
     , make_numeric_array_map_evaluator(functor, nodes.evaluator()...)
   );
 }
