@@ -18,7 +18,7 @@ struct numeric_array_expression_tag {};
 
 template<class Shape, class Evaluator>
 class NumericArrayExpression
-  : public Shape
+  : Shape
 {
  public:
   NumericArrayExpression(const Shape& shape, const Evaluator& evaluator)
@@ -131,8 +131,8 @@ auto make_binary_arithmetic_expression(
       , const Lhs& lhs
       , const Rhs& rhs)
 {
-  assert_any_shapes_match(lhs, rhs);
-  return make_binary_function_expression(get_first_shape(lhs, rhs), functor, lhs, rhs);
+  assert_any_shaped_match(lhs, rhs);
+  return make_binary_function_expression(get_first_shaped(lhs, rhs), functor, lhs, rhs);
 }
 
 ////////////////////////////////
@@ -151,8 +151,8 @@ auto make_assignment_expression(
       , const NumericArrayExpression<Shape1, Evaluator1>& lhs
       , const Rhs& rhs)
 {
-  assert_any_shapes_match(lhs, rhs);
-  return make_binary_function_expression(get_first_shape(lhs, rhs), functor, lhs, rhs);
+  assert_any_shaped_match(lhs, rhs);
+  return make_binary_function_expression(get_first_shaped(lhs, rhs), functor, lhs, rhs);
 }
 
 /////////////////////////
@@ -169,9 +169,9 @@ auto make_map_expression(
       , const Functor& functor
       , const Nodes&... nodes)
 {
-  assert_any_shapes_match(nodes...);
+  assert_any_shaped_match(nodes...);
   return make_numeric_array_expression(
-      get_first_shape(nodes...)
+      get_first_shaped(nodes...)
     , make_numeric_array_map_evaluator(functor, nodes.evaluator()...)
   );
 }
