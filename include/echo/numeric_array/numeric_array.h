@@ -1,6 +1,7 @@
 #pragma once
 
 #include <echo/k_array.h>
+#include <echo/simd_allocator.h>
 #include <echo/expression_template.h>
 
 #include <echo/numeric_array/expression.h>
@@ -14,7 +15,7 @@ namespace echo { namespace numeric_array {
 template<
     class Scalar
   , class Shape
-  , class Allocator = std::allocator<Scalar>
+  , class Allocator = SimdAllocator<Scalar>
 >
 class NumericArray
   : public KArray<Scalar, Shape, Allocator>
