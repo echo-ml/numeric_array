@@ -18,17 +18,18 @@ template<
 class NumericArrayView
   : public KArrayView<Pointer, Shape>
   , public ExpressionTemplateConstAssignment<
-        numeric_array_expression_tag
-      , NumericArrayView<Pointer, Shape>
+        NumericArrayView<Pointer, Shape>
+      , numeric_array_expression_tag
+      , typename std::iterator_traits<Pointer>::value_type
     >
 {
   using BaseKArray = KArrayView<Pointer, Shape>;
   // using AssignmentBase = KArrayAssignment<NumericArrayView<Pointer, Shape>, Scalar>;
-  using BaseExpressionTemplateAssignment = 
-      ExpressionTemplateConstAssignment<
-          numeric_array_expression_tag
-        , NumericArrayView<Pointer, Shape>
-      >;
+  using BaseExpressionTemplateAssignment = ExpressionTemplateConstAssignment<
+      NumericArrayView<Pointer, Shape>
+    , numeric_array_expression_tag
+    , typename std::iterator_traits<Pointer>::value_type
+  >;
  public:
   using BaseKArray::BaseKArray; 
   using BaseExpressionTemplateAssignment::operator=;

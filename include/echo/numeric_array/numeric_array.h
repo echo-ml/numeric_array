@@ -19,8 +19,9 @@ template<
 class NumericArray
   : public KArray<Scalar, Shape, Allocator>
   , public ExpressionTemplateAssignment<
-        numeric_array_expression_tag
-      , NumericArray<Scalar, Shape, Allocator>
+        NumericArray<Scalar, Shape, Allocator>
+      , numeric_array_expression_tag
+      , Scalar
     >
   , public KArrayAssignment<NumericArray<Scalar, Shape, Allocator>, Scalar>
 {
@@ -28,8 +29,9 @@ class NumericArray
   using AssignmentBase = KArrayAssignment<NumericArray<Scalar, Shape, Allocator>, Scalar>;
   using BaseExpressionTemplateAssignment = 
       ExpressionTemplateAssignment<
-          numeric_array_expression_tag
-        , NumericArray<Scalar, Shape, Allocator>
+          NumericArray<Scalar, Shape, Allocator>
+        , numeric_array_expression_tag
+        , Scalar
       >;
  public:
   using BaseKArray::BaseKArray; 
