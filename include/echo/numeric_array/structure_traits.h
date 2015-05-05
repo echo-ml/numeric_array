@@ -9,6 +9,11 @@ namespace structure_traits {
 template <class... Structures>
 struct fuse {};
 
+template<class Structure>
+struct fuse<Structure> {
+  using type = Structure;
+};
+
 template <class Structure1, class Structure2, class... StructuresRest>
 struct fuse<Structure1, Structure2, StructuresRest...>
     : fuse<typename fuse<Structure1, Structure2>::type, StructuresRest...> {};
