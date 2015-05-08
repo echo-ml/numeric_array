@@ -225,6 +225,43 @@ constexpr bool compatible_functor_evaluators() {
                 Evaluators...>();
 }
 
+///////////////////
+// index_functor //
+///////////////////
+
+namespace detail { namespace concept {
+
+template<class>
+struct IndexFunctor {};
+
+// template<>
+// struct IndexFunctor<std::index_sequence<1>> : Concept {
+//   template<class T>
+//   auto require(T&& functor) -> list<
+//     execution_context::concept::scalar<
+//       std::result_of_t<const T(index_t)>
+//     >()
+//   >;
+// };
+
+template<std::size_t... Ix>
+struct IndexFunctor<std::index_sequence<Ix...>> : Concept {
+  template<class T>
+  auto require(T&& functor) -> list<
+    execution_context::concept::scalar<
+      std::result_of_t<const T(std::enable_if_t<Ix || true, index_t>...)>
+    >()
+  >;
+};
+
+}}
+
+template<int K, class Functor>
+constexpr bool index_functor() {
+  return models<detail::concept::IndexFunctor<std::make_index_sequence<K>>,
+                Functor>();
+}
+
 }
 }
 }

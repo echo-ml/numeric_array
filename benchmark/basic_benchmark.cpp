@@ -32,6 +32,7 @@ BENCHMARK_SET("basic_expression",
       make_expression(numeric_array_expression_tag(), X1)
       );
     executer(
+      execution_mode::force_inline,
       Y1 = expr
     );
   }

@@ -33,6 +33,11 @@ TEST_CASE("map_expression") {
   const auto& eval = expr3.evaluator();
   CHECK(eval(0) == 3.0);
   CHECK(eval(5) == 8.0);
+
+  auto expr4 = map(std::plus<double>(), a1, a1);
+  auto eval4 = expr4.evaluator();
+  CHECK(eval4(0) == 2.0);
+  CHECK(eval4(5) == 12.0);
 }
 
 TEST_CASE("arithmetic_expression") {

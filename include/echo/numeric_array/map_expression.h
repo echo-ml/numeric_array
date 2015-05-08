@@ -92,5 +92,18 @@ auto make_assignment_expression(numeric_array_expression_tag,
                                 const Rhs& rhs) {
   return make_map_expression(numeric_array_expression_tag(), functor, lhs, rhs);
 }
+
+/////////
+// map //
+/////////
+
+// template<class Functor, class... Expressions,
+//   CONCEPT_REQUIRES(
+//       detail::map_expression::check_arguments<Functor, Expressions...>())
+// auto map(const Functor& functor, Expressions&&... expressions) {
+//   return make_map_expression(
+//     
+// }
+
 }
 }
