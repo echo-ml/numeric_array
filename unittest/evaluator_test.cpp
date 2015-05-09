@@ -2,6 +2,7 @@
 #include <echo/numeric_array/scalar_evaluator.h>
 #include <echo/numeric_array/flatten_evaluator.h>
 #include <echo/numeric_array/numeric_array_evaluator.h>
+#include <echo/numeric_array/numeric_subarray_evaluator.h>
 #include <echo/test.h>
 #include <numeric>
 #include <functional>
@@ -28,6 +29,23 @@ TEST_CASE("numeric_array_evaluator") {
   auto eval1 = make_numeric_array_evaluator(&data[0]);
   CHECK(eval1(0) == 1);
   CHECK(eval1(1) == 2);
+}
+
+TEST_CASE("numeric_subarray_evaluator1") {
+  double data[] = {1, 2, 3, 4};
+  k_array::KShapeStrides<2> shape_strides;
+  auto eval1 = make_numeric_subarray_evaluator(&data[0], shape_strides);
+  CHECK(eval1(0) == 1);
+  CHECK(eval1(1) == 3);
+}
+
+TEST_CASE("numeric_subarray_evaluator2") {
+  double data[] = {1, 2, 3, 4, 5, 6, 7, 8};
+  k_array::KShapeStrides<3, Stride::kDynamic> shape_strides(1);
+  auto eval1 = make_numeric_subarray_evaluator(&data[0], shape_strides);
+  CHECK(eval1(0, 2, 0, 4) == 1);
+  CHECK(eval1(1, 2, 0, 4) == 4);
+  CHECK(eval1(1, 2, 1, 4) == 5);
 }
 
 TEST_CASE("flatten_evaluator2") {
