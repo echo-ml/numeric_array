@@ -5,12 +5,14 @@
 #include <echo/numeric_array/evaluator.h>
 #include <echo/numeric_array/scalar_evaluator.h>
 #include <echo/numeric_array/numeric_array_evaluator.h>
+#include <echo/numeric_array/numeric_subarray_evaluator.h>
 #include <echo/numeric_array/conversion_evaluator.h>
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/concept.h>
+#include <echo/numeric_array/structure_traits.h>
 #include <echo/k_array.h>
 #include <echo/execution_context.h>
-#include <echo/numeric_array/structure_traits.h>
+#include <echo/expression_template.h>
 
 namespace echo {
 namespace numeric_array {
@@ -20,12 +22,22 @@ namespace numeric_array {
 ////////////////////////////
 
 template <class Shape, class Structure, class Evaluator>
-class NumericArrayExpression : Shape {
+class NumericArrayExpression
+    : Shape,
+      public expression_template::ExpressionTemplateConstAssignment<
+          NumericArrayExpression<Shape, Structure, Evaluator>,
+          numeric_array_expression_tag,
+          evaluator_traits::value_type<Evaluator>> {
  public:
   NumericArrayExpression(const Shape& shape, const Evaluator& evaluator)
       : Shape(shape), _evaluator(evaluator) {}
   using expression_template_tag = numeric_array_expression_tag;
   using structure = Structure;
+
+  using expression_template::ExpressionTemplateConstAssignment<
+      NumericArrayExpression, numeric_array_expression_tag,
+      evaluator_traits::value_type<Evaluator>>::
+  operator=;
 
   const Evaluator evaluator() const { return _evaluator; }
   const Shape& shape() const { return static_cast<const Shape&>(*this); }
@@ -61,13 +73,34 @@ auto make_numeric_array_expression(const Shape& shape,
 
 template <class NumericArray,
           CONCEPT_REQUIRES(
-              concept::numeric_array<uncvref_t<NumericArray>>())>
+              concept::contiguous_numeric_array<uncvref_t<NumericArray>>())>
 auto make_expression(numeric_array_expression_tag,
                      NumericArray&& numeric_array) {
   return make_numeric_array_expression<
       expression_traits::structure<NumericArray>>(
-      numeric_array.shape(),
+      get_extent_shape(numeric_array.shape()),
       make_numeric_array_evaluator(numeric_array.data()));
+}
+
+template <class NumericArray,
+          CONCEPT_REQUIRES(
+              !concept::contiguous_numeric_array<uncvref_t<NumericArray>>() &&
+              concept::numeric_array<uncvref_t<NumericArray>>())>
+auto make_expression(numeric_array_expression_tag,
+                     NumericArray&& numeric_array) {
+  const auto& shape = numeric_array.shape();
+  return make_numeric_array_expression<
+      expression_traits::structure<NumericArray>>(
+        get_extent_shape(shape),
+        make_numeric_subarray_evaluator(
+          numeric_array.data(),
+          shape.shape_strides()
+        )
+      );
+  // return make_numeric_array_expression<
+  //     expression_traits::structure<NumericArray>>(
+  //     get_extent_shape(numeric_array.shape()),
+  //     make_numeric_array_evaluator(numeric_array.data()));
 }
 
 template <class Scalar,
@@ -115,11 +148,12 @@ auto make_expression(
 
 // template <class Functor, class Lhs, class Rhs>
 // auto make_binary_arithmetic_expression(numeric_array_expression_tag,
-//                                        const Functor& functor, const Lhs& lhs,
+//                                        const Functor& functor, const Lhs&
+//                                        lhs,
 //                                        const Rhs& rhs) {
-  // assert_any_shaped_match(lhs, rhs);
-  // return make_binary_function_expression(get_first_shaped(lhs, rhs), functor,
-  // lhs, rhs);
+// assert_any_shaped_match(lhs, rhs);
+// return make_binary_function_expression(get_first_shaped(lhs, rhs), functor,
+// lhs, rhs);
 // }
 
 ////////////////////////////////

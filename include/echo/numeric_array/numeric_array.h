@@ -4,7 +4,7 @@
 #include <echo/simd_allocator.h>
 #include <echo/expression_template.h>
 
-#include <echo/numeric_array/expression.h>
+#include <echo/numeric_array/expression_template_tag.h>
 #include <echo/execution_context.h>
 
 namespace echo {
@@ -19,7 +19,7 @@ template <class Scalar, class Shape,
           class Allocator = SimdAllocator<Scalar> >
 class NumericArray
     : public KArray<Scalar, Shape, Allocator>,
-      public ExpressionTemplateAssignment<
+      public expression_template::ExpressionTemplateAssignment<
           NumericArray<Scalar, Shape, Structure, Allocator>,
           numeric_array_expression_tag, Scalar>,
       public KArrayAssignment<NumericArray<Scalar, Shape, Structure, Allocator>,
@@ -28,7 +28,7 @@ class NumericArray
   using AssignmentBase =
       KArrayAssignment<NumericArray<Scalar, Shape, Structure, Allocator>,
                        Scalar>;
-  using BaseExpressionTemplateAssignment = ExpressionTemplateAssignment<
+  using BaseExpressionTemplateAssignment = expression_template::ExpressionTemplateAssignment<
       NumericArray<Scalar, Shape, Structure, Allocator>,
       numeric_array_expression_tag, Scalar>;
 
@@ -38,5 +38,6 @@ class NumericArray
   using AssignmentBase::operator=;
   using BaseExpressionTemplateAssignment::operator=;
 };
+
 }
 }  // end namespace echo::numeric_array

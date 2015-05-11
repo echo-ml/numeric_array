@@ -4,7 +4,7 @@
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/null_shape.h>
 #include <echo/execution_context.h>
-#include <echo/expression_template.h>
+// #include <echo/expression_template.h>
 
 namespace echo {
 namespace numeric_array {
