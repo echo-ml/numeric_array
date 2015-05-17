@@ -4,6 +4,7 @@
 #include <echo/expression_template.h>
 
 #include <echo/numeric_array/expression_template_tag.h>
+#include <echo/numeric_array/numeric_array_accessor.h>
 #include <echo/execution_context.h>
 
 namespace echo {
@@ -20,17 +21,25 @@ class NumericArrayView
       public expression_template::ExpressionTemplateConstAssignment<
           NumericArrayView<Pointer, Shape, Structure>,
           numeric_array_expression_tag,
-          typename std::iterator_traits<Pointer>::value_type> {
-  using BaseKArrayView = KArrayView<Pointer, Shape>;
+          typename std::iterator_traits<Pointer>::value_type>,
+      public NumericArrayConstAccessor<
+          NumericArrayView<Pointer, Shape, Structure>,
+          KArrayView<Pointer, Shape>, Shape, Structure> {
+  using KArrayViewBase = KArrayView<Pointer, Shape>;
+  using ExpressionTemplateAssignmentBase =
+      expression_template::ExpressionTemplateConstAssignment<
+          NumericArrayView, numeric_array_expression_tag,
+          typename std::iterator_traits<Pointer>::value_type>;
+  using AccessorBase =
+      NumericArrayConstAccessor<NumericArrayView, KArrayView<Pointer, Shape>,
+                                Shape, Structure>;
 
  public:
   using structure = Structure;
-  using BaseKArrayView::operator=;
-  using BaseKArrayView::BaseKArrayView;
-  using expression_template::ExpressionTemplateConstAssignment<
-      NumericArrayView, numeric_array_expression_tag,
-      typename std::iterator_traits<Pointer>::value_type>::
-  operator=;
+  using KArrayViewBase::operator=;
+  using KArrayViewBase::KArrayViewBase;
+  using ExpressionTemplateAssignmentBase::operator=;
+  using AccessorBase::operator();
 };
 
 /////////////////////////////
@@ -52,5 +61,38 @@ auto make_numeric_array_view(Pointer data, const Shape& shape) {
   return NumericArrayView<Pointer, Shape, Structure>(data, shape);
 }
 
+///////////////
+// make_view //
+///////////////
+
+template <class Pointer, class Shape, class Structure>
+auto make_view(const NumericArrayView<Pointer, Shape, Structure>& view) {
+  return view;
+}
+
+template <class Scalar, class Shape, class Structure, class Allocator>
+auto make_view(const NumericArray<Scalar, Shape, Structure, Allocator>& array) {
+  return make_numeric_array_view<Structure>(array.data(), array.shape());
+}
+
+template <class Scalar, class Shape, class Structure, class Allocator>
+auto make_view(NumericArray<Scalar, Shape, Structure, Allocator>& array) {
+  return make_numeric_array_view<Structure>(array.data(), array.shape());
+}
+
+////////////////
+// make_cview //
+////////////////
+
+template <class Pointer, class Shape, class Structure>
+auto make_cview(const NumericArrayView<Pointer, Shape, Structure>& view) {
+  return make_numeric_array_view<Structure>(view.const_data(), view.shape());
+}
+
+template <class Scalar, class Shape, class Structure, class Allocator>
+auto make_cview(
+    const NumericArray<Scalar, Shape, Structure, Allocator>& array) {
+  return make_numeric_array_view<Structure>(array.data(), array.shape());
+}
 }
 }  // end namespace echo::numeric_array

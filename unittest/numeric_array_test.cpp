@@ -73,3 +73,10 @@ TEST_CASE("numeric_array") {
     CHECK(array1(0, 1) == 4);
   }
 }
+
+TEST_CASE("accessor") {
+  NumericArray<double, KShape<2,3>> n1;
+  const auto& n1_cref = n1;
+  n1(0, 1) = 7;
+  CHECK(n1_cref(0, 1) == 7);
+}

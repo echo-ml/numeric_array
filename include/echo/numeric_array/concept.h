@@ -33,6 +33,22 @@ constexpr bool numeric_array() {
   return models<detail::concept::NumericArray, T>();
 }
 
+namespace detail {
+namespace concept {
+template <class Structure>
+struct StructuredNumericArray : Concept {
+  template <class T>
+  auto require(T&& x)
+      -> list<numeric_array<T>(), same<typename T::structure, Structure>()>;
+};
+}
+}
+
+template <class Structure, class T>
+constexpr bool numeric_array() {
+  return models<detail::concept::StructuredNumericArray<Structure>, T>();
+}
+
 //////////////////////////////
 // contiguous_numeric_array //
 //////////////////////////////
@@ -40,6 +56,11 @@ constexpr bool numeric_array() {
 template <class T>
 constexpr bool contiguous_numeric_array() {
   return numeric_array<T>() && k_array::concept::contiguous_k_array<T>();
+}
+
+template <class Structure, class T>
+constexpr bool contiguous_numeric_array() {
+  return contiguous_numeric_array<T>() && numeric_array<Structure, T>();
 }
 
 ///////////////////////
@@ -184,18 +205,18 @@ constexpr bool compatible_expression_shapes() {
 
 struct CompatibleExpressions : Concept {
   template <class... Tx>
-      auto require(Tx&&... tx)
-          -> list < const_algorithm::and_c<expression<Tx>()...>(),
+  auto require(Tx&&... tx) -> list<
+      const_algorithm::and_c<expression<Tx>()...>(),
       compatible_structures<expression_traits::structure<Tx>...>(),
       compatible_expression_shapes<
           expression_traits::shape_type<first_shaped_expression<Tx...>>,
           Tx...>()
-  // this version doesn't work with intel compiler
-  // const_algorithm::and_c<
-  //     same<expression_traits::shape_type<first_shaped_expression<Tx...>>,
-  //          expression_traits::shape_type<Tx>>() ||
-  //     scalar_expression<Tx>()...>()
-  >;
+      // this version doesn't work with intel compiler
+      // const_algorithm::and_c<
+      //     same<expression_traits::shape_type<first_shaped_expression<Tx...>>,
+      //          expression_traits::shape_type<Tx>>() ||
+      //     scalar_expression<Tx>()...>()
+      >;
 };
 }
 }
@@ -209,7 +230,8 @@ constexpr bool compatible_expressions() {
 // compatible_functor_evaluators //
 ///////////////////////////////////
 
-namespace detail { namespace concept {
+namespace detail {
+namespace concept {
 struct CompatibleFunctorEvaluators : Concept {
   template <class Functor, class... Evaluators>
   auto require(Functor&& functor, Evaluators&&... evaluators)
@@ -217,9 +239,10 @@ struct CompatibleFunctorEvaluators : Concept {
           uncvref_t<decltype(functor(std::declval<
               type_traits::functor_return_type<Evaluators>>()...))>>()>;
 };
-}}
+}
+}
 
-template<class Functor, class... Evaluators>
+template <class Functor, class... Evaluators>
 constexpr bool compatible_functor_evaluators() {
   return models<detail::concept::CompatibleFunctorEvaluators, Functor,
                 Evaluators...>();
@@ -229,9 +252,10 @@ constexpr bool compatible_functor_evaluators() {
 // index_functor //
 ///////////////////
 
-namespace detail { namespace concept {
+namespace detail {
+namespace concept {
 
-template<class>
+template <class>
 struct IndexFunctor {};
 
 // template<>
@@ -244,24 +268,20 @@ struct IndexFunctor {};
 //   >;
 // };
 
-template<std::size_t... Ix>
+template <std::size_t... Ix>
 struct IndexFunctor<std::index_sequence<Ix...>> : Concept {
-  template<class T>
-  auto require(T&& functor) -> list<
-    execution_context::concept::scalar<
-      std::result_of_t<const T(std::enable_if_t<Ix || true, index_t>...)>
-    >()
-  >;
+  template <class T>
+  auto require(T&& functor) -> list<execution_context::concept::scalar<
+      std::result_of_t<const T(std::enable_if_t<Ix || true, index_t>...)>>()>;
 };
+}
+}
 
-}}
-
-template<int K, class Functor>
+template <int K, class Functor>
 constexpr bool index_functor() {
   return models<detail::concept::IndexFunctor<std::make_index_sequence<K>>,
                 Functor>();
 }
-
 }
 }
 }

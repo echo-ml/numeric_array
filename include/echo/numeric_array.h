@@ -1,5 +1,6 @@
 #pragma once
 
+#include <echo/numeric_array/structure.h>
 #include <echo/numeric_array/numeric_array.h>
 #include <echo/numeric_array/numeric_array_view.h>
 #include <echo/numeric_array/expression.h>
