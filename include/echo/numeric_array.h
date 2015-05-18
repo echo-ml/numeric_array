@@ -4,6 +4,7 @@
 #include <echo/numeric_array/numeric_array.h>
 #include <echo/numeric_array/numeric_array_view.h>
 #include <echo/numeric_array/expression.h>
+#include <echo/numeric_array/numeric_array_traits.h>
 #include <echo/numeric_array/map_expression.h>
 
 namespace echo {

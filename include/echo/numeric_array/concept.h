@@ -83,6 +83,23 @@ constexpr bool shaped_expression() {
   return models<detail::concept::ShapedExpression, T>();
 }
 
+namespace detail {
+namespace concept {
+template <int K>
+struct KShapedExpression : Concept {
+  template <class T>
+  auto require(T&& x) -> list<
+      shaped_expression<T>(),
+      shape_traits::num_dimensions<uncvref_t<decltype(x.shape())>>() == K>;
+};
+}
+}
+
+template <int K, class T>
+constexpr bool shaped_expression() {
+  return models<detail::concept::KShapedExpression<K>, T>();
+}
+
 ///////////////////////
 // scalar_expression //
 ///////////////////////

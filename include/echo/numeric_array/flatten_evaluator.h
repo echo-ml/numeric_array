@@ -25,7 +25,8 @@ struct FlattenEvaluatorImpl {};
 
 template <std::size_t... Indexes, class Derived>
 struct FlattenEvaluatorImpl<std::index_sequence<Indexes...>, Derived> {
-  auto operator()(std::enable_if_t<Indexes || true, index_t>... indexes) const {
+  decltype(auto) operator()(
+      std::enable_if_t<Indexes || true, index_t>... indexes) const {
     const auto& derived = static_cast<const Derived&>(*this);
     return derived.evaluator()(flatten_indexes(indexes...));
   }
