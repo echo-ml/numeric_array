@@ -141,7 +141,7 @@ namespace concept {
 struct CompatibleStructures : Concept {
   template <class... Tx>
   auto require(Tx&&... tx) -> list<
-      execution_context::concept::structure<structure_traits::fuse_t<Tx...>>()>;
+      execution_context::concept::structure<structure_traits::fuse<Tx...>>()>;
 };
 }
 }
@@ -151,6 +151,19 @@ constexpr bool compatible_structures() {
   return models<detail::concept::CompatibleStructures, Tx...>();
 }
 
+/////////////
+// fusible //
+/////////////
+
+namespace detail { namespace concept {
+struct Fusible : Concept {
+  template<class A, class B>
+  auto require(A&& a, B&& b) -> list<
+    execution_context::concept::structure<structure_traits::fuse<A, B>>()
+  >;
+};
+}}
+
 //////////////////////////////
 // structure_convertible_to //
 //////////////////////////////
@@ -159,7 +172,7 @@ namespace detail {
 namespace concept {
 struct StructureConvertibleTo : Concept {
   template <class A, class B>
-  auto require(A&& a, B&& b) -> list<same<structure_traits::fuse_t<A, B>, B>()>;
+  auto require(A&& a, B&& b) -> list<same<structure_traits::fuse<A, B>, B>()>;
 };
 }
 }

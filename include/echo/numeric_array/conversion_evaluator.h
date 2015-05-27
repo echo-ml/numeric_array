@@ -12,7 +12,8 @@ template <
         execution_context::concept::structure<Structure2>() &&
         std::is_same<Structure1, Structure2>::value &&
         execution_context::concept::k_compatible_evaluator<K, Evaluator>())>
-auto make_conversion_evaluator(const Evaluator& evaluator) {
+auto make_conversion_evaluator(Structure1, Structure2,
+                               const Evaluator& evaluator) {
   return evaluator;
 }
 
@@ -23,7 +24,8 @@ template <
         execution_context::concept::structure<Structure2>() &&
         std::is_same<Structure1, structure::scalar>::value &&
         execution_context::concept::k_compatible_evaluator<K, Evaluator>())>
-auto make_conversion_evaluator(const Evaluator& evaluator) {
+auto make_conversion_evaluator(Structure1, Structure2,
+                               const Evaluator& evaluator) {
   return evaluator;
 }
 }

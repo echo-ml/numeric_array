@@ -67,40 +67,38 @@ auto make_numeric_array_expression(const Shape& shape,
   return NumericArrayExpression<Shape, Structure, Evaluator>(shape, evaluator);
 }
 
-/////////////////////
-// make_expression //
-/////////////////////
+///////////////////////////////////////
+// make_numeric_array_evaluator_impl //
+///////////////////////////////////////
 
 template <class NumericArray,
           CONCEPT_REQUIRES(
               concept::contiguous_numeric_array<uncvref_t<NumericArray>>())>
-auto make_expression(numeric_array_expression_tag,
-                     NumericArray&& numeric_array) {
-  return make_numeric_array_expression<
-      expression_traits::structure<NumericArray>>(
-      get_extent_shape(numeric_array.shape()),
-      make_numeric_array_evaluator(numeric_array.data()));
+auto make_numeric_array_evaluator_impl(NumericArray&& numeric_array) {
+  return make_numeric_array_evaluator(numeric_array.data());
 }
 
 template <class NumericArray,
           CONCEPT_REQUIRES(
               !concept::contiguous_numeric_array<uncvref_t<NumericArray>>() &&
               concept::numeric_array<uncvref_t<NumericArray>>())>
+auto make_numeric_array_evaluator_impl(NumericArray&& numeric_array) {
+  return make_numeric_subarray_evaluator(numeric_array.data(),
+                                         numeric_array.shape().shape_strides());
+}
+
+/////////////////////
+// make_expression //
+/////////////////////
+
+template <class NumericArray,
+          CONCEPT_REQUIRES(concept::numeric_array<uncvref_t<NumericArray>>())>
 auto make_expression(numeric_array_expression_tag,
                      NumericArray&& numeric_array) {
-  const auto& shape = numeric_array.shape();
   return make_numeric_array_expression<
-      expression_traits::structure<NumericArray>>(
-        get_extent_shape(shape),
-        make_numeric_subarray_evaluator(
-          numeric_array.data(),
-          shape.shape_strides()
-        )
-      );
-  // return make_numeric_array_expression<
-  //     expression_traits::structure<NumericArray>>(
-  //     get_extent_shape(numeric_array.shape()),
-  //     make_numeric_array_evaluator(numeric_array.data()));
+      expression_traits::structure<uncvref_t<NumericArray>>>(
+      get_extent_shape(numeric_array.shape()),
+      make_numeric_array_evaluator_impl(numeric_array));
 }
 
 template <class Scalar,

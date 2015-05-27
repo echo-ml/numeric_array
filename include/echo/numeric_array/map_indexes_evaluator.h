@@ -10,7 +10,7 @@ namespace numeric_array {
 /////////////////////////
 
 namespace detail {
-namespace map_index_evaluator {
+namespace map_indexes_evaluator {
 
 template <class Functor, class ArgumentFirst, class ArgumentSecond>
 decltype(auto) apply_odd_arguments(const Functor& functor,
@@ -38,7 +38,7 @@ decltype(auto) apply_odd_arguments(const Functor& functor,
 ///////////////////////
 
 namespace detail {
-namespace map_index_evaluator {
+namespace map_indexes_evaluator {
 
 template <class, class Derived>
 struct MapIndexEvaluatorImpl {};
@@ -64,22 +64,21 @@ struct MapIndexEvaluatorImpl<std::index_sequence<Indexes...>, Derived> {
 
 template <int K, class Functor>
 class MapIndexEvaluator
-    : public detail::map_index_evaluator::MapIndexEvaluatorImpl<
+    : public detail::map_indexes_evaluator::MapIndexEvaluatorImpl<
           std::make_index_sequence<(K == 1 ? 1 : 2 * K)>,
           MapIndexEvaluator<K, Functor>> {
  public:
   MapIndexEvaluator(const Functor& functor) : _functor(functor) {}
   const auto& functor() const { return _functor; }
+
  private:
   Functor _functor;
 };
 
-template<int K, class Functor, 
-  CONCEPT_REQUIRES(concept::index_functor<K, Functor>())
->
-auto make_map_index_evaluator(const Functor& functor) {
+template <int K, class Functor,
+          CONCEPT_REQUIRES(concept::index_functor<K, Functor>())>
+auto make_map_indexes_evaluator(const Functor& functor) {
   return MapIndexEvaluator<K, Functor>(functor);
 }
-
 }
 }

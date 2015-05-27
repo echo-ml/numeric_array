@@ -58,17 +58,16 @@ template <class Functor, class... Expressions,
 auto make_map_expression(numeric_array_expression_tag, const Functor& functor,
                          const Expressions&... expressions) {
   using structure =
-      structure_traits::fuse_t<expression_traits::structure<Expressions>...>;
+      structure_traits::fuse<expression_traits::structure<Expressions>...>;
   const auto& shape =
       detail::map_expression::get_first_shaped_expression(expressions...)
           .shape();
   constexpr int K = shape_traits::num_dimensions<decltype(shape)>();
   return make_numeric_array_expression<structure>(
-      shape,
-      make_map_evaluator<K>(
-          functor, make_conversion_evaluator<
-                       K, expression_traits::structure<Expressions>, structure>(
-                       expressions.evaluator())...));
+      shape, make_map_evaluator<K>(
+                 functor, make_conversion_evaluator<K>(
+                              expression_traits::structure<Expressions>(),
+                              structure(), expressions.evaluator())...));
 }
 
 ///////////////////////////////////////
@@ -92,18 +91,5 @@ auto make_assignment_expression(numeric_array_expression_tag,
                                 const Rhs& rhs) {
   return make_map_expression(numeric_array_expression_tag(), functor, lhs, rhs);
 }
-
-/////////
-// map //
-/////////
-
-// template<class Functor, class... Expressions,
-//   CONCEPT_REQUIRES(
-//       detail::map_expression::check_arguments<Functor, Expressions...>())
-// auto map(const Functor& functor, Expressions&&... expressions) {
-//   return make_map_expression(
-//     
-// }
-
 }
 }
