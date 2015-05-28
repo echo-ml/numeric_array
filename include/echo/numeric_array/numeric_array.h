@@ -7,6 +7,7 @@
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/structure.h>
 #include <echo/numeric_array/numeric_array_accessor.h>
+#include <echo/numeric_array/numeric_array_initializer.h>
 #include <echo/execution_context.h>
 
 namespace echo {
@@ -14,6 +15,10 @@ namespace numeric_array {
 
 namespace detail {
 namespace numeric_array {
+
+//////////////////////
+// NumericArrayBase //
+//////////////////////
 
 template <class Indexes, class Scalar, class Shape, class Structure,
           class Allocator>
@@ -35,7 +40,13 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
       public NumericArrayAccessor<
           NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
                            Structure, Allocator>,
-          KArray<Scalar, Shape, Allocator>, Shape, Structure> {
+          KArray<Scalar, Shape, Allocator>, Shape, Structure>,
+      public NumericArrayInitializer<
+          NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
+                           Structure, Allocator>,
+          Scalar, Shape, Structure>
+
+      {
   using KArrayBase = KArray<Scalar, Shape, Allocator>;
   using AssignmentBase = KArrayAssignment<NumericArrayBase, Scalar>;
   using ExpressionTemplateAssignmentBase =
@@ -54,12 +65,8 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
   explicit NumericArrayBase(const Allocator& allocator = Allocator())
       : KArrayBase(Shape(), allocator) {}
 
-  // enablement is broken with intel compiler
-  // CONCEPT_MEMBER_REQUIRES(
-  //     !echo::numeric_array::structure::concept::equal_dimensional<Structure>())
   explicit NumericArrayBase(
-      std::enable_if_t<true || Indexes,
-                       shape_traits::extent_type<Indexes, Shape>>... extents,
+      shape_traits::extent_type<Indexes, Shape>... extents,
       const Allocator& allocator = Allocator())
       : KArrayBase(make_k_shape(extents...), allocator) {
     static_assert(!echo::numeric_array::structure::concept::equal_dimensional<
@@ -72,6 +79,14 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
   explicit NumericArrayBase(shape_traits::extent_type<0, Shape> extent,
                             const Allocator& allocator = Allocator())
       : KArrayBase(make_k_shape((Indexes, extent)...), allocator) {}
+
+  CONCEPT_MEMBER_REQUIRES(
+      const_algorithm::and_c<k_array::is_static_extent<Indexes, Shape>()...>())
+  NumericArrayBase(Initializer<Scalar, sizeof...(Indexes)> values,
+                   const Allocator& allocator = Allocator())
+      : KArrayBase(Shape(), allocator) {
+    this->initialize(values);
+  }
 };
 }
 }

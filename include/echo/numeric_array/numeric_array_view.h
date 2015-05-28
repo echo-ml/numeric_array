@@ -5,6 +5,7 @@
 
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/numeric_array_accessor.h>
+#include <echo/numeric_array/numeric_array_initializer.h>
 #include <echo/execution_context.h>
 
 namespace echo {
@@ -24,7 +25,10 @@ class NumericArrayView
           typename std::iterator_traits<Pointer>::value_type>,
       public NumericArrayConstAccessor<
           NumericArrayView<Pointer, Shape, Structure>,
-          KArrayView<Pointer, Shape>, Shape, Structure> {
+          KArrayView<Pointer, Shape>, Shape, Structure>,
+      public NumericArrayConstInitializer<
+          NumericArrayView<Pointer, Shape, Structure>,
+          iterator_traits::value_type<Pointer>, Shape, Structure> {
   using KArrayViewBase = KArrayView<Pointer, Shape>;
   using ExpressionTemplateAssignmentBase =
       expression_template::ExpressionTemplateConstAssignment<
@@ -40,6 +44,14 @@ class NumericArrayView
   using KArrayViewBase::KArrayViewBase;
   using ExpressionTemplateAssignmentBase::operator=;
   using AccessorBase::operator();
+
+  CONCEPT_MEMBER_REQUIRES(echo::concept::writable<Pointer>())
+  auto& operator=(
+      Initializer<iterator_traits::value_type<Pointer>,
+                  shape_traits::num_dimensions<Shape>()> values) const {
+    this->initialize(values);
+    return *this;
+  }
 };
 
 /////////////////////////////

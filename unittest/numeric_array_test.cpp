@@ -65,8 +65,8 @@ TEST_CASE("numeric_array") {
 
   SECTION("subarray") {
     std::fill_n(array1.data(), int(get_num_elements(array1)), 0);
-    auto expr =
-      array4 = map_index([](index_t i) { return (i+1)*(i+1); }, 2_index);
+    auto expr = array4 =
+        map_index([](index_t i) { return (i + 1) * (i + 1); }, 2_index);
     executer(expr);
 
     CHECK(array1(0, 0) == 1);
@@ -75,8 +75,19 @@ TEST_CASE("numeric_array") {
 }
 
 TEST_CASE("accessor") {
-  NumericArray<double, KShape<2,3>> n1;
+  NumericArray<double, KShape<2, 3>> n1;
   const auto& n1_cref = n1;
   n1(0, 1) = 7;
   CHECK(n1_cref(0, 1) == 7);
+}
+
+TEST_CASE("initialization") {
+  NumericArray<double, KShape<2, 3>> n1 = {{1, 2, 3}, {4, 5, 6}};
+  CHECK(n1(0, 0) == 1);
+  CHECK(n1(1, 2) == 6);
+
+  auto v1 = make_view(n1);
+  v1 = {{2, 3, 4}, {5, 6, 7}};
+  CHECK(v1(0, 0) == 2);
+  CHECK(v1(1, 2) == 7);
 }
