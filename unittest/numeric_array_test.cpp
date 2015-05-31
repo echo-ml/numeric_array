@@ -2,7 +2,8 @@
 #include <echo/numeric_array/numeric_array_view.h>
 #include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/map_expression.h>
-#include <echo/numeric_array/map_index_expression.h>
+#include <echo/numeric_array/map_indexes_expression.h>
+#include <echo/numeric_array/test.h>
 #include <echo/tbb_expression_executer.h>
 #include <catch.hpp>
 #include <numeric>
@@ -66,7 +67,7 @@ TEST_CASE("numeric_array") {
   SECTION("subarray") {
     std::fill_n(array1.data(), int(get_num_elements(array1)), 0);
     auto expr = array4 =
-        map_index([](index_t i) { return (i + 1) * (i + 1); }, 2_index);
+        map_indexes([](index_t i) { return (i + 1) * (i + 1); }, 2_index);
     executer(expr);
 
     CHECK(array1(0, 0) == 1);
@@ -82,7 +83,9 @@ TEST_CASE("accessor") {
 }
 
 TEST_CASE("initialization") {
-  NumericArray<double, KShape<2, 3>> n1 = {{1, 2, 3}, {4, 5, 6}};
+  // NumericArray<double, KShape<2, 3>> n1 = {{1,2,3}, {4,5,6}};
+  NumericArray<double, KShape<2,3>> n1;
+  n1 = {{1, 2, 3}, {4, 5, 6}};
   CHECK(n1(0, 0) == 1);
   CHECK(n1(1, 2) == 6);
 
@@ -90,4 +93,10 @@ TEST_CASE("initialization") {
   v1 = {{2, 3, 4}, {5, 6, 7}};
   CHECK(v1(0, 0) == 2);
   CHECK(v1(1, 2) == 7);
+}
+
+TEST_CASE("array_equal") {
+  NumericArray<double, KShape<2,3>> n1;
+  // echo::numeric_array::detail::test::array_check<double, 2>(n1, {{1,2,3}, {4,5,6}});
+  ARRAY_EQUAL(n1, {{1, 2, 3}, {4,5,6}});
 }

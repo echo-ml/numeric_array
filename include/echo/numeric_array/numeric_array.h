@@ -82,10 +82,27 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
 
   CONCEPT_MEMBER_REQUIRES(
       const_algorithm::and_c<k_array::is_static_extent<Indexes, Shape>()...>())
-  NumericArrayBase(Initializer<Scalar, sizeof...(Indexes)> values,
+  NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
                    const Allocator& allocator = Allocator())
       : KArrayBase(Shape(), allocator) {
     this->initialize(values);
+  }
+  CONCEPT_MEMBER_REQUIRES(
+      const_algorithm::and_c<!k_array::is_static_extent<Indexes, Shape>()...>())
+  NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
+                   const Allocator& allocator = Allocator())
+      : KArrayBase(make_k_shape(std::get<Indexes>(
+                       InitializerMultilistAccessor<Scalar, sizeof...(Indexes)>(
+                           values).extents())...),
+                   allocator) {
+    this->initialize(values);
+  }
+
+  auto& operator=(InitializerMultilist<Scalar,
+                                       shape_traits::num_dimensions<Shape>()>
+                      values) {
+    this->initialize(values);
+    return *this;
   }
 };
 }

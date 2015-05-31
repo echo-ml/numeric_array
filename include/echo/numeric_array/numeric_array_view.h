@@ -46,9 +46,9 @@ class NumericArrayView
   using AccessorBase::operator();
 
   CONCEPT_MEMBER_REQUIRES(echo::concept::writable<Pointer>())
-  auto& operator=(
-      Initializer<iterator_traits::value_type<Pointer>,
-                  shape_traits::num_dimensions<Shape>()> values) const {
+  auto& operator=(InitializerMultilist<iterator_traits::value_type<Pointer>,
+                                       shape_traits::num_dimensions<Shape>()>
+                      values) const {
     this->initialize(values);
     return *this;
   }

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <echo/numeric_array/initializer.h>
+// #include <echo/numeric_array/initializer.h>
+#include <echo/utility/initializer_multilist.h>
 #include <echo/k_array.h>
 #include <stdexcept>
 
@@ -44,9 +45,9 @@ void initialize_impl(Values values, const Shape& shape,
 
 template <class Scalar, class Shape, class Derived>
 void initialize(
-    Initializer<Scalar, shape_traits::num_dimensions<Shape>()> values,
+    InitializerMultilist<Scalar, shape_traits::num_dimensions<Shape>()> values,
     const Shape& shape, Derived& derived) {
-  initialize_impl<0>(values, shape, [&](Scalar value, auto... indexes) {
+  initialize_impl<0>(values, shape, [&](auto value, auto... indexes) {
     derived(indexes...) = value;
   });
 }
@@ -59,8 +60,8 @@ void initialize(
 
 template <class Derived, class Scalar, class Shape, class Structure>
 struct NumericArrayInitializer {
-  void initialize(
-      Initializer<Scalar, shape_traits::num_dimensions<Shape>()> values) {
+  void initialize(InitializerMultilist<
+      Scalar, shape_traits::num_dimensions<Shape>()> values) {
     auto& derived = static_cast<Derived&>(*this);
     detail::numeric_array_initializer::initialize<Scalar>(
         values, derived.shape(), derived);
@@ -74,8 +75,8 @@ struct NumericArrayInitializer {
 template <class Derived, class Scalar, class Shape, class Structure>
 struct NumericArrayConstInitializer
     : NumericArrayInitializer<Derived, Scalar, Shape, Structure> {
-  void initialize(
-      Initializer<Scalar, shape_traits::num_dimensions<Shape>()> values) const {
+  void initialize(InitializerMultilist<
+      Scalar, shape_traits::num_dimensions<Shape>()> values) const {
     auto mutable_this = const_cast<NumericArrayConstInitializer*>(this);
     mutable_this->NumericArrayInitializer<Derived, Scalar, Shape,
                                           Structure>::initialize(values);

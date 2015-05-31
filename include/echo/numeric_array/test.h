@@ -1,7 +1,10 @@
 #pragma once
 
 #include <echo/numeric_array/concept.h>
+#include <echo/numeric_array/map_indexes_expression.h>
 #include <echo/test.h>
+#include <echo/utility/initializer_multilist.h>
+#include <sstream>
 
 namespace echo {
 namespace numeric_array {
@@ -9,47 +12,89 @@ namespace numeric_array {
 namespace detail {
 namespace test {
 
-template <int I, class Values, class Shape, class Functor,
-          CONCEPT_REQUIRES(I == shape_traits::num_dimensions<Shape>())>
-void check_impl(Values values, const Shape& shape, const Functor& functor) {
+///////////////////
+// extents_check //
+///////////////////
+
+template <int I, class Shape,
+          CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
+                           I == shape_traits::num_dimensions<Shape>())>
+void extents_check(
+    const Shape& shape,
+    const std::array<int, shape_traits::num_dimensions<Shape>()>& extents) {}
+
+template <int I, class Shape,
+          CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
+                           I != shape_traits::num_dimensions<Shape>())>
+void extents_check(
+    const Shape& shape,
+    const std::array<int, shape_traits::num_dimensions<Shape>()>& extents) {
+  INFO("dimension = " << I);
+  CHECK(get_extent<I>(shape) == extents[I]);
 }
 
-template <int I, class Values, class Shape, class Functor,
-          CONCEPT_REQUIRES(I != shape_traits::num_dimensions<Shape>())>
-void check_impl(Values values, const Shape& shape, const Functor& functor) {
-  CHECK(get_extent<I>(shape) == values.size());
-  index_t index=0;
-  for(auto values_i : values) {
-    auto functor_new = [&](auto value, auto... indexes) {
-      functor(value, index, indexes...);
-    };
-    ++index;
+/////////////////////
+// apply_predicate //
+/////////////////////
+
+template <int I, class Shape, class Functor,
+          CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
+                           I == shape_traits::num_dimensions<Shape>())>
+void apply_predicate(const Shape& shape, const Functor& functor) {
+  functor();
+}
+
+template <int I, class Shape, class Functor,
+          CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
+                           I != shape_traits::num_dimensions<Shape>())>
+void apply_predicate(const Shape& shape, const Functor& functor) {
+  for (int i = 0; i < get_extent<I>(shape); ++i) {
+    apply_predicate<I + 1>(shape,
+                           [&](auto... indexes) { functor(i, indexes...); });
   }
 }
 
-template <int I, class Array1, CONCEPT_REQUIRES(I != 0)>
-void check_impl(const Array1& array1,
-                Initializer<k_array_traits::value_type<Array1>,
-                            k_array_traits::num_dimensions<Array1>()> values) 
-{
+/////////////////
+// array_check //
+/////////////////
+
+template <class Scalar, int N, class Pointer, class Shape, class Structure,
+          class Predicate>
+void array_check_impl(NumericArrayView<Pointer, Shape, Structure> array1,
+                      InitializerMultilist<Scalar, N> values,
+                      const Predicate& predicate) {
+  auto accessor = InitializerMultilistAccessor<Scalar, N>(values);
   const auto& shape = array1.shape();
-  CHECK(get_extent<I>(shape) == values.size());
-  index_t index=0;
-  for(auto values_i : values) {
-       
-  }
+
+  extents_check<0>(shape, accessor.extents());
+
+  apply_predicate<0>(shape, [&](auto... indexes) {
+    std::ostringstream oss;
+    [](auto...) {}((oss << indexes << " ", 0)...);
+    INFO("index = ( " << oss.str() << ")");
+    predicate(array1(indexes...), accessor(indexes...));
+  });
 }
 
-template <class Array1, class Array2,
-          CONCEPT_REQUIRES(concept::numeric_array<Array1>())>
-void check(const Array1& array1,
-           Initializer<k_array_traits::value_type<Array1>,
-           k_array_traits::num_dimensions<Array1>()> values) {
-  const auto& shape = array1.shape(); 
+template <class Scalar, class Shape, class Structure, class Allocator>
+void array_check(
+    const NumericArray<Scalar, Shape, Structure, Allocator>& array1,
+    InitializerMultilist<Scalar, shape_traits::num_dimensions<Shape>()> values,
+    double tolerance = 0.0) {
+  constexpr int N = shape_traits::num_dimensions<Shape>();
+  auto accessor = InitializerMultilistAccessor<Scalar, N>(values);
+  const auto& shape = array1.shape();
+  array_check_impl<Scalar, N>(make_cview(array1), values, [=](auto x, auto y) {
+    if (tolerance == 0.0)
+      CHECK(x == y);
+    else
+      CHECK(x == Approx(y).epsilon(tolerance));
+  });
 }
 }
 }
 }
 }
 
-//#define ARRAY_EQUAL(ARRAY1, ARRAY2
+#define ARRAY_EQUAL(...) \
+  echo::numeric_array::detail::test::array_check(__VA_ARGS__)
