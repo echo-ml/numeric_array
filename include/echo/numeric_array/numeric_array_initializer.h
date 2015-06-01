@@ -1,6 +1,5 @@
 #pragma once
 
-// #include <echo/numeric_array/initializer.h>
 #include <echo/utility/initializer_multilist.h>
 #include <echo/k_array.h>
 #include <stdexcept>

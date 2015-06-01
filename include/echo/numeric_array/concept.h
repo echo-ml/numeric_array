@@ -49,6 +49,25 @@ constexpr bool numeric_array() {
   return models<detail::concept::StructuredNumericArray<Structure>, T>();
 }
 
+//////////////////////////////////////
+// modifiable_numeric_array_forward //
+//////////////////////////////////////
+
+namespace detail {
+namespace concept {
+struct ModifiableNumericArrayForward : Concept {
+  template <class T>
+  auto require(T&& x) -> list<numeric_array<uncvref_t<T>>(),
+                              echo::concept::writable<decltype(x.data())>()>;
+};
+}
+}
+
+template <class T>
+constexpr bool modifiable_numeric_array_forward() {
+  return models<detail::concept::ModifiableNumericArrayForward, T>();
+}
+
 //////////////////////////////
 // contiguous_numeric_array //
 //////////////////////////////
@@ -155,14 +174,15 @@ constexpr bool compatible_structures() {
 // fusible //
 /////////////
 
-namespace detail { namespace concept {
+namespace detail {
+namespace concept {
 struct Fusible : Concept {
-  template<class A, class B>
+  template <class A, class B>
   auto require(A&& a, B&& b) -> list<
-    execution_context::concept::structure<structure_traits::fuse<A, B>>()
-  >;
+      execution_context::concept::structure<structure_traits::fuse<A, B>>()>;
 };
-}}
+}
+}
 
 //////////////////////////////
 // structure_convertible_to //
@@ -287,16 +307,6 @@ namespace concept {
 
 template <class>
 struct IndexFunctor {};
-
-// template<>
-// struct IndexFunctor<std::index_sequence<1>> : Concept {
-//   template<class T>
-//   auto require(T&& functor) -> list<
-//     execution_context::concept::scalar<
-//       std::result_of_t<const T(index_t)>
-//     >()
-//   >;
-// };
 
 template <std::size_t... Ix>
 struct IndexFunctor<std::index_sequence<Ix...>> : Concept {

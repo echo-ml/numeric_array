@@ -10,21 +10,23 @@ namespace numeric_array {
 // map_indexes //
 /////////////////
 
-template <class Functor, class... Extents,
-          CONCEPT_REQUIRES(
-              concept::index_functor<sizeof...(Extents), Functor>() &&
-              const_algorithm::and_c<k_array::concept::extent<Extents>()...>())>
+template <
+    class Functor, class... Extents,
+    CONCEPT_REQUIRES(
+        const_algorithm::and_c<k_array::concept::extent<Extents>()...>()),
+    CONCEPT_REQUIRES(concept::index_functor<sizeof...(Extents), Functor>())>
 auto map_indexes(const Functor& functor, Extents... extents) {
   return make_numeric_array_expression<execution_context::structure::general>(
       make_k_shape(extents...),
       make_map_indexes_evaluator<sizeof...(Extents)>(functor));
 }
 
-template <class Structure, class Functor, class... Extents,
-          CONCEPT_REQUIRES(
-              execution_context::concept::structure<Structure>() &&
-              concept::index_functor<sizeof...(Extents), Functor>() &&
-              const_algorithm::and_c<k_array::concept::extent<Extents>()...>())>
+template <
+    class Structure, class Functor, class... Extents,
+    CONCEPT_REQUIRES(
+        const_algorithm::and_c<k_array::concept::extent<Extents>()...>()),
+    CONCEPT_REQUIRES(execution_context::concept::structure<Structure>() &&
+                     concept::index_functor<sizeof...(Extents), Functor>())>
 auto map_indexes(const Functor& functor, Extents... extents) {
   return make_numeric_array_expression<Structure>(
       make_k_shape(extents...),

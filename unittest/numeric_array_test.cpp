@@ -4,6 +4,7 @@
 #include <echo/numeric_array/map_expression.h>
 #include <echo/numeric_array/map_indexes_expression.h>
 #include <echo/numeric_array/test.h>
+#include <echo/numeric_array/copy.h>
 #include <echo/tbb_expression_executer.h>
 #include <catch.hpp>
 #include <numeric>
@@ -83,7 +84,6 @@ TEST_CASE("accessor") {
 }
 
 TEST_CASE("initialization") {
-  // NumericArray<double, KShape<2, 3>> n1 = {{1,2,3}, {4,5,6}};
   NumericArray<double, KShape<2,3>> n1;
   n1 = {{1, 2, 3}, {4, 5, 6}};
   CHECK(n1(0, 0) == 1);
@@ -97,6 +97,25 @@ TEST_CASE("initialization") {
 
 TEST_CASE("array_equal") {
   NumericArray<double, KShape<2,3>> n1;
-  // echo::numeric_array::detail::test::array_check<double, 2>(n1, {{1,2,3}, {4,5,6}});
+  n1 = {{1,2,3}, {4,5,6}};
   ARRAY_EQUAL(n1, {{1, 2, 3}, {4,5,6}});
+}
+
+TEST_CASE("copyable") {
+  NumericArray<double, KShape<3, 2>> n1, n2;
+  n1 = {{1,2}, {3, 4}, {5,6}};
+  auto v1 =
+      make_numeric_array_view(n1.data(), slice(n1.shape(), 2_index, 2_index));
+  auto v2 =
+      make_numeric_array_view(n2.data(), slice(n2.shape(), 2_index, 2_index));
+
+  SECTION("contiguous_copy") {
+    copy(executer, n1, n2);
+    ARRAY_EQUAL(n2, {{1,2},{3,4},{5,6}});
+  }
+
+  SECTION("noncontiguous_copy") {
+    copy(executer, v1, v2);
+    ARRAY_EQUAL(v2, {{1,2},{3,4}});
+  }
 }

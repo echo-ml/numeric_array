@@ -2,6 +2,8 @@
 
 #include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/map_indexes_expression.h>
+#include <echo/numeric_array/numeric_array.h>
+#include <echo/numeric_array/numeric_array_view.h>
 #include <echo/test.h>
 #include <echo/utility/initializer_multilist.h>
 #include <sstream>
@@ -76,21 +78,49 @@ void array_check_impl(NumericArrayView<Pointer, Shape, Structure> array1,
   });
 }
 
-template <class Scalar, class Shape, class Structure, class Allocator>
+template <class Pointer, class Shape, class Structure>
 void array_check(
-    const NumericArray<Scalar, Shape, Structure, Allocator>& array1,
-    InitializerMultilist<Scalar, shape_traits::num_dimensions<Shape>()> values,
+    const NumericArrayView<Pointer, Shape, Structure>& array1,
+    InitializerMultilist<uncvref_t<decltype(*std::declval<Pointer>())>,
+                         shape_traits::num_dimensions<Shape>()> values,
     double tolerance = 0.0) {
+  using Scalar = uncvref_t<decltype(*std::declval<Pointer>())>;
   constexpr int N = shape_traits::num_dimensions<Shape>();
   auto accessor = InitializerMultilistAccessor<Scalar, N>(values);
   const auto& shape = array1.shape();
-  array_check_impl<Scalar, N>(make_cview(array1), values, [=](auto x, auto y) {
+  array_check_impl<Scalar, N>(array1, values, [=](auto x, auto y) {
     if (tolerance == 0.0)
       CHECK(x == y);
     else
       CHECK(x == Approx(y).epsilon(tolerance));
   });
 }
+
+template <class Pointer, class Shape, class Structure>
+void array_check(
+    InitializerMultilist<uncvref_t<decltype(*std::declval<Pointer>())>,
+                         shape_traits::num_dimensions<Shape>()> values,
+    const NumericArrayView<Pointer, Shape, Structure>& array1,
+    double tolerance = 0.0) {
+  array_check(array1, values, tolerance);
+}
+
+template <class Scalar, class Shape, class Structure, class Allocator>
+void array_check(
+    const NumericArray<Scalar, Shape, Structure, Allocator>& array1,
+    InitializerMultilist<Scalar, shape_traits::num_dimensions<Shape>()> values,
+    double tolerance = 0.0) {
+  array_check(make_cview(array1), values, tolerance);
+}
+
+template <class Scalar, class Shape, class Structure, class Allocator>
+void array_check(
+    InitializerMultilist<Scalar, shape_traits::num_dimensions<Shape>()> values,
+    const NumericArray<Scalar, Shape, Structure, Allocator>& array1,
+    double tolerance = 0.0) {
+  array_check(make_cview(array1), values, tolerance);
+}
+
 }
 }
 }
