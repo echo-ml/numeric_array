@@ -76,6 +76,7 @@ TEST_CASE("map_evaluator2") {
       make_flatten_evaluator<2>(make_numeric_array_evaluator(&data1[0]));
   auto eval2 =
       make_flatten_evaluator<2>(make_numeric_array_evaluator(&data2[0]));
+  
   auto eval = make_map_evaluator<2>(std::plus<double>(), eval1, eval2);
   CHECK(eval(0, 2, 0, 3) == 7);
   CHECK(eval(1, 2, 0, 3) == 7);
@@ -87,8 +88,8 @@ TEST_CASE("map_evaluator3") {
   std::iota(std::begin(data), std::end(data), 0);
   auto eval2 =
       make_flatten_evaluator<2>(make_numeric_array_evaluator(&data[0]));
-  auto eval3 = make_map_evaluator<2>(std::plus<double>(), eval1, eval2);
-  CHECK(eval3(0, 2, 0, 3) == 3);
-  CHECK(eval3(1, 2, 0, 3) == 4);
-  CHECK(eval3(1, 2, 1, 3) == 6);
+  // auto eval3 = make_map_evaluator<2>(std::plus<double>(), eval1, eval2);
+  // CHECK(eval3(0, 2, 0, 3) == 3);
+  // CHECK(eval3(1, 2, 0, 3) == 4);
+  // CHECK(eval3(1, 2, 1, 3) == 6);
 }

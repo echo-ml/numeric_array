@@ -76,11 +76,40 @@ TEST_CASE("numeric_array") {
   }
 }
 
+TEST_CASE("construction") {
+  // NumericArray<double, KShape<1, Dimension::kDynamic>> n1(10);
+  // CHECK(get_num_elements(n1) == 10);
+  //
+  // n1 = {1,2,3,4,5,6,7,8,9,10};
+}
+
 TEST_CASE("accessor") {
   NumericArray<double, KShape<2, 3>> n1;
   const auto& n1_cref = n1;
   n1(0, 1) = 7;
   CHECK(n1_cref(0, 1) == 7);
+}
+
+TEST_CASE("1-d accessor") {
+  NumericArray<double, KShape<3>> n1;
+  n1(0) = 1; n1(1) = 2; n1(2) = 3;
+  auto values123 = {1,2,3};
+  CHECK(std::equal(std::begin(values123), std::end(values123), n1.const_data()));
+
+  NumericArray<double, KShape<1, 3>> n2;
+  n2(0) = 1; n2(1) = 2; n2(2) = 3;
+  CHECK(std::equal(std::begin(values123), std::end(values123), n2.const_data()));
+  CHECK(n2(0,0) == 1);
+
+  double data[] = {1,2,3,4,5,6};
+  auto v1 = make_numeric_array_view(data, 
+    make_k_subshape(
+      make_k_shape(1_index, 2_index),
+      k_array::KShapeStrides<1,3>()
+    ));
+  CHECK(v1(0) == 1);
+  CHECK(v1(1) == 4);
+  CHECK(v1(0, 1) == 4);
 }
 
 TEST_CASE("initialization") {
@@ -99,6 +128,10 @@ TEST_CASE("array_equal") {
   NumericArray<double, KShape<2,3>> n1;
   n1 = {{1,2,3}, {4,5,6}};
   ARRAY_EQUAL(n1, {{1, 2, 3}, {4,5,6}});
+
+  NumericArray<double, KShape<3, 1>> n2;
+  n2 = {4, 5, 6};
+  ARRAY_EQUAL(n2, {{4},{5},{6}});
 }
 
 TEST_CASE("copyable") {

@@ -58,13 +58,15 @@ auto make_map_evaluator_impl(const Functor& functor,
 
 template <int K, class Functor, class... Evaluators,
           CONCEPT_REQUIRES(
-              const_algorithm::and_c<
-                  execution_context::concept::k_compatible_evaluator<
-                      K, Evaluators>()...>() &&
-              echo::concept::callable<
-                  Functor, type_traits::functor_return_type<Evaluators>...>() &&
-              numeric_array::concept::compatible_functor_evaluators<
-                  Functor, Evaluators...>())>
+          1
+              // const_algorithm::and_c<
+              //     execution_context::concept::k_compatible_evaluator<
+              //         K, Evaluators>()...>() &&
+              // echo::concept::callable<
+              //     Functor, type_traits::functor_return_type<Evaluators>...>() &&
+              // numeric_array::concept::compatible_functor_evaluators<
+              //     Functor, Evaluators...>()
+                  )>
 auto make_map_evaluator(const Functor& functor,
                         const Evaluators&... evaluators) {
   return detail::map_evaluator::make_map_evaluator_impl<K>(

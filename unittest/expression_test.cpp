@@ -24,7 +24,8 @@ TEST_CASE("expression_test") {
 TEST_CASE("map_expression") {
   NumericArray<double, KShape<3,2>> a1;
   auto expr1 = make_expression(numeric_array_expression_tag(), a1);
-  a1 = {1,2,3,4,5,6};
+  // a1 = {1,2,3,4,5,6};
+  a1 = {{1, 4}, {2, 5}, {3, 6}};
   auto expr2 = make_expression(numeric_array_expression_tag(), 2.0);
 
   auto expr3 = make_map_expression(numeric_array_expression_tag(),
@@ -42,7 +43,8 @@ TEST_CASE("map_expression") {
 
 TEST_CASE("arithmetic_expression") {
   NumericArray<double, KShape<3,2>> a1, a2;
-  a2 = {1,2,3,4,5,6};
+  // a2 = {1,2,3,4,5,6};
+  a2 = {{1, 4}, {2, 5}, {3, 6}};
   auto e1 = a2*a2;
   auto e2 = (a1 = a2*a2);
   auto eval = e2.evaluator();

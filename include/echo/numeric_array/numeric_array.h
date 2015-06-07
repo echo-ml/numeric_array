@@ -80,27 +80,44 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
                             const Allocator& allocator = Allocator())
       : KArrayBase(make_k_shape((Indexes, extent)...), allocator) {}
 
-  CONCEPT_MEMBER_REQUIRES(
-      const_algorithm::and_c<k_array::is_static_extent<Indexes, Shape>()...>())
-  NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
-                   const Allocator& allocator = Allocator())
-      : KArrayBase(Shape(), allocator) {
+  // broken with intel's compiler //
+  // CONCEPT_MEMBER_REQUIRES(
+  //     shape_traits::num_free_dimensions<Shape>() == 1 &&
+  //     shape_traits::num_dimensions<Shape>() != 1 &&
+  //     !and_c<k_array::is_static_extent<Indexes, Shape>()...>())
+  // explicit NumericArrayBase(index_t n, const Allocator& allocator =
+  // Allocator())
+  //     : KArrayBase(Shape(n), allocator) {}
+
+  // CONCEPT_MEMBER_REQUIRES(
+  //     and_c<k_array::is_static_extent<Indexes, Shape>()...>())
+  // NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
+  //                  const Allocator& allocator = Allocator())
+  //     : KArrayBase(Shape(), allocator) {
+  //   this->initialize(values);
+  // }
+  //
+  // CONCEPT_MEMBER_REQUIRES(
+  //     and_c<!k_array::is_static_extent<Indexes, Shape>()...>())
+  // NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
+  //                  const Allocator& allocator = Allocator())
+  //     : KArrayBase(make_k_shape(std::get<Indexes>(
+  //                      InitializerMultilistAccessor<Scalar,
+  //                      sizeof...(Indexes)>(
+  //                          values).extents())...),
+  //                  allocator) {
+  //   this->initialize(values);
+  // }
+
+  auto& operator=(InitializerMultilist<
+      Scalar, shape_traits::num_dimensions<Shape>()> values) {
     this->initialize(values);
-  }
-  CONCEPT_MEMBER_REQUIRES(
-      const_algorithm::and_c<!k_array::is_static_extent<Indexes, Shape>()...>())
-  NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
-                   const Allocator& allocator = Allocator())
-      : KArrayBase(make_k_shape(std::get<Indexes>(
-                       InitializerMultilistAccessor<Scalar, sizeof...(Indexes)>(
-                           values).extents())...),
-                   allocator) {
-    this->initialize(values);
+    return *this;
   }
 
-  auto& operator=(InitializerMultilist<Scalar,
-                                       shape_traits::num_dimensions<Shape>()>
-                      values) {
+  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1 &&
+                          shape_traits::num_dimensions<Shape>() != 1)
+  auto& operator=(InitializerMultilist<Scalar, 1> values) {
     this->initialize(values);
     return *this;
   }

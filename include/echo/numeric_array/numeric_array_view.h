@@ -52,6 +52,15 @@ class NumericArrayView
     this->initialize(values);
     return *this;
   }
+
+  CONCEPT_MEMBER_REQUIRES(echo::concept::writable<Pointer>() &&
+                          shape_traits::num_free_dimensions<Shape>() == 1 &&
+                          shape_traits::num_dimensions<Shape>() != 1)
+  auto& operator=(
+      InitializerMultilist<iterator_traits::value_type<Pointer>, 1> values) {
+    this->initialize(values);
+    return *this;
+  }
 };
 
 /////////////////////////////
