@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_test
+
 #include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/map_indexes_expression.h>
 #include <echo/numeric_array/numeric_array.h>
@@ -11,26 +13,27 @@
 namespace echo {
 namespace numeric_array {
 
-namespace detail {
-namespace test {
+namespace DETAIL_NS {
 
 ///////////////////
 // extents_check //
 ///////////////////
 
-template <int I, class Shape,
+template <int I, class Shape, class SizeType,
           CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
                            I == shape_traits::num_dimensions<Shape>())>
 void extents_check(
     const Shape& shape,
-    const std::array<int, shape_traits::num_dimensions<Shape>()>& extents) {}
+    const std::array<SizeType, shape_traits::num_dimensions<Shape>()>&
+        extents) {}
 
-template <int I, class Shape,
+template <int I, class Shape, class SizeType,
           CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
                            I != shape_traits::num_dimensions<Shape>())>
 void extents_check(
     const Shape& shape,
-    const std::array<int, shape_traits::num_dimensions<Shape>()>& extents) {
+    const std::array<SizeType, shape_traits::num_dimensions<Shape>()>&
+        extents) {
   INFO("dimension = " << I);
   CHECK(get_extent<I>(shape) == extents[I]);
 }
@@ -61,10 +64,10 @@ void apply_predicate(const Shape& shape, const Functor& functor) {
 /////////////////
 
 template <class Scalar, int N, class Pointer, class Shape, class Structure,
-          class Predicate>
-void array_check_impl(NumericArrayView<Pointer, Shape, Structure> array1,
-                      InitializerMultilist<Scalar, N> values,
-                      const Predicate& predicate) {
+          class MemoryBackendTag, class Predicate>
+void array_check_impl(
+    NumericArrayView<Pointer, Shape, Structure, MemoryBackendTag> array1,
+    InitializerMultilist<Scalar, N> values, const Predicate& predicate) {
   auto accessor = InitializerMultilistAccessor<Scalar, N>(values);
   const auto& shape = array1.shape();
 
@@ -96,11 +99,11 @@ void array_check(
   });
 }
 
-template <class Pointer, class Shape, class Structure>
+template <class Pointer, class Shape, class Structure, class MemoryBackendTag>
 void array_check(
     InitializerMultilist<uncvref_t<decltype(*std::declval<Pointer>())>,
                          shape_traits::num_dimensions<Shape>()> values,
-    const NumericArrayView<Pointer, Shape, Structure>& array1,
+    const NumericArrayView<Pointer, Shape, Structure, MemoryBackendTag>& array1,
     double tolerance = 0.0) {
   array_check(array1, values, tolerance);
 }
@@ -120,11 +123,11 @@ void array_check(
     double tolerance = 0.0) {
   array_check(make_cview(array1), values, tolerance);
 }
-
-}
 }
 }
 }
 
 #define ARRAY_EQUAL(...) \
-  echo::numeric_array::detail::test::array_check(__VA_ARGS__)
+  echo::numeric_array::detail_test::array_check(__VA_ARGS__)
+
+#undef DETAIL_NS

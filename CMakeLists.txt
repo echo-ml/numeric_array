@@ -4,42 +4,16 @@ project("echo-numeric_array")
 
 enable_testing()
 
-include(Echo/Test)
-include(Echo/Benchmark)
-
+find_package(Echo)
 find_package(EchoExecutionContext REQUIRED)
+include(Echo/Default)
 
-include_directories(${TBB_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/include)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+include_directories(SYSTEM ${ECHO_INTEL_EXECUTION_CONTEXT_INCLUDES})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+${ECHO_INTEL_EXECUTION_CONTEXT_CXX_FLAGS}")
 
-file(GLOB headers
-  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/echo/*.h"
-)
+ECHO_ADD_DEFAULT_TEST()
+ECHO_ADD_DEFAULT_BENCHMARK()
+ECHO_INSTALL_DEFAULT_HEADERS()
 
-file(GLOB headers-numeric_array
-  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/echo/numeric_array/*.h"
-)
-
-file(GLOB unittests
-  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${CMAKE_CURRENT_SOURCE_DIR}/unittest/*_test.cpp"
-)
-
-file(GLOB benchmarks
-  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${CMAKE_CURRENT_SOURCE_DIR}/benchmark/*_benchmark.cpp"
-)
-
-install(FILES ${headers} DESTINATION include/echo)
-install(FILES ${headers-numeric_array} DESTINATION include/echo/numeric_array)
-
-add_catch_test(numeric_array-test ${unittests})
-add_benchmark(benchmark ${benchmarks})
-target_link_libraries(benchmark ${TBB_LIBRARIES})
-
-target_link_libraries(numeric_array-test tbb)
-
-# add_subdirectory(unittest)
+ECHO_TARGET_LINK_LIBRARIES(${ECHO_INTEL_EXECUTION_CONTEXT_LIBRARIES})

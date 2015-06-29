@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_map_expression
+
 #include <echo/numeric_array/expression.h>
 #include <echo/numeric_array/map_evaluator.h>
 #include <echo/numeric_array/conversion_evaluator.h>
@@ -7,16 +9,14 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////////////////////
-// get_first_shaped_expression //
-/////////////////////////////////
+//////////////////////////////////////
+// get_first_dimensioned_expression //
+//////////////////////////////////////
 
-namespace detail {
-namespace map_expression {
-
+namespace DETAIL_NS {
 template <class ExpressionFirst, class... ExpressionsRest,
-          CONCEPT_REQUIRES(concept::shaped_expression<ExpressionFirst>())>
-const auto& get_first_shaped_expression(
+          CONCEPT_REQUIRES(concept::dimensioned_expression<ExpressionFirst>())>
+const auto& get_first_dimensioned_expression(
     const ExpressionFirst& expression_first,
     const ExpressionsRest&... expressions_rest) {
   return expression_first;
@@ -24,11 +24,10 @@ const auto& get_first_shaped_expression(
 
 template <class ExpressionFirst, class... ExpressionsRest,
           CONCEPT_REQUIRES(concept::scalar_expression<ExpressionFirst>())>
-const auto& get_first_shaped_expression(
+const auto& get_first_dimensioned_expression(
     const ExpressionFirst& expression_first,
     const ExpressionsRest&... expressions_rest) {
-  return get_first_shaped_expression(expressions_rest...);
-}
+  return get_first_dimensioned_expression(expressions_rest...);
 }
 }
 
@@ -36,8 +35,7 @@ const auto& get_first_shaped_expression(
 // make_map_expression //
 /////////////////////////
 
-namespace detail {
-namespace map_expression {
+namespace DETAIL_NS {
 // bug with intel compiler requires breaking this out separately
 template <class Functor, class... Expressions>
 constexpr bool check_arguments() {
@@ -50,24 +48,25 @@ constexpr bool check_arguments() {
              Functor, expression_traits::evaluator_type<Expressions>...>();
 }
 }
-}
 
-template <class Functor, class... Expressions,
-          CONCEPT_REQUIRES(detail::map_expression::check_arguments<
-              Functor, Expressions...>())>
+template <
+    class Functor, class... Expressions,
+    CONCEPT_REQUIRES(DETAIL_NS::check_arguments<Functor, Expressions...>())>
 auto make_map_expression(numeric_array_expression_tag, const Functor& functor,
                          const Expressions&... expressions) {
   using structure =
       structure_traits::fuse<expression_traits::structure<Expressions>...>;
-  const auto& shape =
-      detail::map_expression::get_first_shaped_expression(expressions...)
-          .shape();
-  constexpr int K = shape_traits::num_dimensions<decltype(shape)>();
+  const auto& dimensionality =
+      DETAIL_NS::get_first_dimensioned_expression(expressions...)
+          .dimensionality();
+  constexpr int K = dimensionality_traits::num_dimensions<
+      uncvref_t<decltype(dimensionality)>>();
   return make_numeric_array_expression<structure>(
-      shape, make_map_evaluator<K>(
-                 functor, make_conversion_evaluator<K>(
-                              expression_traits::structure<Expressions>(),
-                              structure(), expressions.evaluator())...));
+      dimensionality,
+      make_map_evaluator<K>(
+          functor, make_conversion_evaluator<K>(
+                       expression_traits::structure<Expressions>(), structure(),
+                       expressions.evaluator())...));
 }
 
 ///////////////////////////////////////
@@ -75,8 +74,7 @@ auto make_map_expression(numeric_array_expression_tag, const Functor& functor,
 ///////////////////////////////////////
 
 template <class Functor, class Lhs, class Rhs,
-          CONCEPT_REQUIRES(
-              detail::map_expression::check_arguments<Functor, Lhs, Rhs>())>
+          CONCEPT_REQUIRES(DETAIL_NS::check_arguments<Functor, Lhs, Rhs>())>
 auto make_binary_arithmetic_expression(numeric_array_expression_tag,
                                        const Functor& functor, const Lhs& lhs,
                                        const Rhs& rhs) {
@@ -84,8 +82,7 @@ auto make_binary_arithmetic_expression(numeric_array_expression_tag,
 }
 
 template <class Functor, class Lhs, class Rhs,
-          CONCEPT_REQUIRES(
-              detail::map_expression::check_arguments<Functor, Lhs, Rhs>())>
+          CONCEPT_REQUIRES(DETAIL_NS::check_arguments<Functor, Lhs, Rhs>())>
 auto make_assignment_expression(numeric_array_expression_tag,
                                 const Functor& functor, const Lhs& lhs,
                                 const Rhs& rhs) {
@@ -93,3 +90,5 @@ auto make_assignment_expression(numeric_array_expression_tag,
 }
 }
 }
+
+#undef DETAIL_NS

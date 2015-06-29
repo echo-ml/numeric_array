@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_map_indexes_evaluator
+
 #include <echo/numeric_array/concept.h>
 
 namespace echo {
@@ -9,9 +11,7 @@ namespace numeric_array {
 // apply_odd_arguments //
 /////////////////////////
 
-namespace detail {
-namespace map_indexes_evaluator {
-
+namespace DETAIL_NS {
 template <class Functor, class ArgumentFirst, class ArgumentSecond>
 decltype(auto) apply_odd_arguments(const Functor& functor,
                                    ArgumentFirst argument_first,
@@ -31,15 +31,12 @@ decltype(auto) apply_odd_arguments(const Functor& functor,
   }, arguments_rest...);
 }
 }
-}
 
 ///////////////////////
 // MapIndexEvaluator //
 ///////////////////////
 
-namespace detail {
-namespace map_indexes_evaluator {
-
+namespace DETAIL_NS {
 template <class, class Derived>
 struct MapIndexEvaluatorImpl {};
 
@@ -60,19 +57,15 @@ struct MapIndexEvaluatorImpl<std::index_sequence<Indexes...>, Derived> {
   }
 };
 }
-}
 
 template <int K, class Functor>
-class MapIndexEvaluator
-    : public detail::map_indexes_evaluator::MapIndexEvaluatorImpl<
-          std::make_index_sequence<(K == 1 ? 1 : 2 * K)>,
-          MapIndexEvaluator<K, Functor>> {
+class MapIndexEvaluator : public DETAIL_NS::MapIndexEvaluatorImpl<
+                              std::make_index_sequence<(K == 1 ? 1 : 2 * K)>,
+                              MapIndexEvaluator<K, Functor>>,
+                          htl::Pack<Functor> {
  public:
-  MapIndexEvaluator(const Functor& functor) : _functor(functor) {}
-  const auto& functor() const { return _functor; }
-
- private:
-  Functor _functor;
+  MapIndexEvaluator(const Functor& functor) : htl::Pack<Functor>(functor) {}
+  const auto& functor() const { return htl::unpack<Functor>(*this); }
 };
 
 template <int K, class Functor,
@@ -82,3 +75,5 @@ auto make_map_indexes_evaluator(const Functor& functor) {
 }
 }
 }
+
+#undef DETAIL_NS

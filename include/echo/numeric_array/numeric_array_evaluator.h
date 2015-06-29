@@ -1,22 +1,25 @@
 #pragma once
 
+#define DETAIL_NS detail_numeric_array_evaluator
+
+#include <echo/numeric_array/concept.h>
 #include <echo/execution_context.h>
 
 namespace echo {
 namespace numeric_array {
 
-///////////////////////////
-// NumericArrayEvaluator //
-///////////////////////////
+/////////////////////////////////////
+// ContiguousNumericArrayEvaluator //
+/////////////////////////////////////
 
 template <class Pointer>
-class NumericArrayEvaluator {
+class ContiguousNumericArrayEvaluator {
   CONCEPT_ASSERT(echo::concept::contiguous_iterator<Pointer>() &&
                  execution_context::concept::scalar<
                      iterator_traits::value_type<Pointer>>());
 
  public:
-  NumericArrayEvaluator(Pointer data) : _data(data) {}
+  ContiguousNumericArrayEvaluator(Pointer data) : _data(data) {}
   decltype(auto) operator()(index_t index) const { return *(_data + index); }
 
  private:
@@ -27,8 +30,106 @@ template <class Pointer,
           CONCEPT_REQUIRES(echo::concept::contiguous_iterator<Pointer>() &&
                            execution_context::concept::scalar<
                                iterator_traits::value_type<Pointer>>())>
-auto make_numeric_array_evaluator(Pointer data) {
-  return NumericArrayEvaluator<Pointer>(data);
+auto make_contiguous_numeric_array_evaluator(Pointer data) {
+  return ContiguousNumericArrayEvaluator<Pointer>(data);
+}
+
+/////////////////////////
+// get_subarray_offset //
+/////////////////////////
+
+namespace DETAIL_NS {
+template <class Strides, CONCEPT_REQUIRES(k_array::concept::extent<Strides>())>
+index_t get_subarray_offset(std::index_sequence<>, const Strides& strides) {
+  return 0;
+}
+template <std::size_t IFirst, std::size_t... IRest, class Strides,
+          class... IndexesRest,
+          CONCEPT_REQUIRES(k_array::concept::extent<Strides>())>
+index_t get_subarray_offset(std::index_sequence<IFirst, IRest...>,
+                            const Strides& strides, index_t index_first,
+                            index_t index_first_size,
+                            IndexesRest... indexes_rest) {
+  return get_stride<IFirst>(strides) * index_first +
+         get_subarray_offset(std::index_sequence<IRest...>(), strides,
+                             indexes_rest...);
+}
+}
+
+//////////////////////////////
+// NumericSubarrayEvaluator //
+//////////////////////////////
+
+namespace DETAIL_NS {
+template <class, class>
+struct NumericSubarrayEvaluatorImpl {};
+
+template <class Derived>
+struct NumericSubarrayEvaluatorImpl<std::index_sequence<0>, Derived> {
+  decltype(auto) operator()(index_t i) const {
+    const auto& derived = static_cast<const Derived&>(*this);
+    return *(derived.data() + get_stride<0>(derived.strides()) * i);
+  }
+};
+
+template <std::size_t... Ix, class Derived>
+struct NumericSubarrayEvaluatorImpl<std::index_sequence<Ix...>, Derived> {
+  decltype(auto) operator()(
+      std::enable_if_t<Ix || true, index_t>... indexes) const {
+    const auto& derived = static_cast<const Derived&>(*this);
+    index_t offset =
+        get_subarray_offset(std::make_index_sequence<sizeof...(Ix) / 2>(),
+                            derived.strides(), indexes...);
+    return *(derived.data() + offset);
+  }
+};
+}
+
+template <class Pointer, class Strides>
+class NumericSubarrayEvaluator
+    : htl::Pack<Strides>,
+      public DETAIL_NS::NumericSubarrayEvaluatorImpl<
+          std::make_index_sequence<(
+              htl::tuple_traits::num_elements<Strides>() > 1
+                  ? htl::tuple_traits::num_elements<Strides>() * 2
+                  : 1)>,
+          NumericSubarrayEvaluator<Pointer, Strides>> {
+ public:
+  NumericSubarrayEvaluator(Pointer data, const Strides& strides)
+      : _data(data), htl::Pack<Strides>(strides) {}
+  auto data() const { return _data; }
+  const auto& strides() const { return htl::unpack<Strides>(*this); }
+
+ private:
+  Pointer _data;
+};
+
+template <class Pointer, class Strides,
+          CONCEPT_REQUIRES(k_array::concept::index_tuple<Strides>())>
+auto make_numeric_subarray_evaluator(Pointer data, const Strides& strides) {
+  return NumericSubarrayEvaluator<Pointer, Strides>(data, strides);
+}
+
+//////////////////////////////////
+// make_numeric_array_evaluator //
+//////////////////////////////////
+
+template <class NumericArray,
+          CONCEPT_REQUIRES(
+              concept::contiguous_numeric_array<uncvref_t<NumericArray>>())>
+auto make_numeric_array_evaluator(NumericArray&& numeric_array) {
+  return make_contiguous_numeric_array_evaluator(numeric_array.data());
+}
+
+template <class NumericArray,
+          CONCEPT_REQUIRES(
+              !concept::contiguous_numeric_array<uncvref_t<NumericArray>>() &&
+              concept::numeric_array<uncvref_t<NumericArray>>())>
+auto make_numeric_array_evaluator(NumericArray&& numeric_array) {
+  return make_numeric_subarray_evaluator(numeric_array.data(),
+                                         numeric_array.shape().strides());
 }
 }
 }
+
+#undef DETAIL_NS

@@ -1,19 +1,18 @@
 #pragma once
 
+#define DETAIL_NS detail_map_evaluator
+
 #include <echo/utility.h>
 #include <echo/index.h>
-#include <echo/const_algorithm.h>
 #include <echo/type_traits.h>
-#include <echo/concept2.h>
+#include <echo/concept.h>
 #include <echo/numeric_array/fuse_evaluator.h>
 #include <echo/numeric_array/concept.h>
 
 namespace echo {
 namespace numeric_array {
 
-namespace detail {
-namespace map_evaluator {
-
+namespace DETAIL_NS {
 template <class, class>
 struct MapEvaluatorImpl {};
 
@@ -26,51 +25,48 @@ struct MapEvaluatorImpl<std::index_sequence<Ix...>, Derived> {
   }
 };
 }
-}
 
 template <class Functor, class EvaluatorFirst, class... EvaluatorsRest>
 class MapEvaluator
-    : public detail::map_evaluator::MapEvaluatorImpl<
+    : htl::Pack<Functor>,
+      public DETAIL_NS::MapEvaluatorImpl<
           std::make_index_sequence<
               type_traits::functor_arity<EvaluatorFirst>()>,
           MapEvaluator<Functor, EvaluatorFirst, EvaluatorsRest...>> {
  public:
   MapEvaluator(const Functor& function, const EvaluatorFirst& evaluator_first,
                const EvaluatorsRest&... evaluators_rest)
-      : _functor(function), _evaluators(evaluator_first, evaluators_rest...) {}
-  const auto& functor() const { return _functor; }
+      : htl::Pack<Functor>(function),
+        _evaluators(evaluator_first, evaluators_rest...) {}
+  const auto& functor() const { return htl::unpack<Functor>(*this); }
   const auto& evaluators() const { return _evaluators; }
 
  private:
-  Functor _functor;
   std::tuple<EvaluatorFirst, EvaluatorsRest...> _evaluators;
 };
 
-namespace detail {
-namespace map_evaluator {
+namespace DETAIL_NS {
 template <int K, class Functor, class... Evaluators>
 auto make_map_evaluator_impl(const Functor& functor,
                              const Evaluators&... evaluators) {
   return MapEvaluator<Functor, Evaluators...>(functor, evaluators...);
 }
 }
-}
 
 template <int K, class Functor, class... Evaluators,
           CONCEPT_REQUIRES(
-          1
-              // const_algorithm::and_c<
-              //     execution_context::concept::k_compatible_evaluator<
-              //         K, Evaluators>()...>() &&
-              // echo::concept::callable<
-              //     Functor, type_traits::functor_return_type<Evaluators>...>() &&
-              // numeric_array::concept::compatible_functor_evaluators<
-              //     Functor, Evaluators...>()
-                  )>
+              and_c<execution_context::concept::k_compatible_evaluator<
+                  K, Evaluators>()...>() &&
+              echo::concept::callable<
+                  Functor, type_traits::functor_return_type<Evaluators>...>() &&
+              numeric_array::concept::compatible_functor_evaluators<
+                  Functor, Evaluators...>())>
 auto make_map_evaluator(const Functor& functor,
                         const Evaluators&... evaluators) {
-  return detail::map_evaluator::make_map_evaluator_impl<K>(
+  return DETAIL_NS::make_map_evaluator_impl<K>(
       functor, fuse_evaluator<K, Evaluators...>(evaluators)...);
 }
 }
 }
+
+#undef DETAIL_NS

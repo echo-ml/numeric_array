@@ -10,7 +10,7 @@
 
 namespace echo {
 
-using echo::numeric_array::NumericArray;
-using echo::numeric_array::NumericArrayView;
+// using echo::numeric_array::NumericArray;
+// using echo::numeric_array::NumericArrayView;
 
 } //end namespace echo

@@ -68,7 +68,7 @@ auto make_k_shaped_evaluator(const Evaluator& evaluator) {
 
 template <int K, class Evaluator,
           CONCEPT_REQUIRES(
-              execution_context::concept::k_shaped_evaluator<K, Evaluator>())>
+              execution_context::concept::k_evaluator<K, Evaluator>())>
 auto make_k_shaped_evaluator(const Evaluator& evaluator) {
   return evaluator;
 }

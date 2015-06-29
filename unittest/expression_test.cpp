@@ -8,23 +8,26 @@ using namespace echo;
 using namespace echo::numeric_array;
 
 TEST_CASE("expression_test") {
-  NumericArray<double, KShape<3,2>> a1;
+  NumericArray<double, ShapeC<3,2>> a1;
+  NumericArray<double, ShapeC<2,3>> a2;
   auto expr1 = make_expression(numeric_array_expression_tag(), a1);
   auto expr2 = make_expression(numeric_array_expression_tag(), 2.0);
   auto expr3 = make_expression(numeric_array_expression_tag(), 3.0);
+  auto expr4 = make_expression(numeric_array_expression_tag(), a2);
 
   using E1 = decltype(expr1);
   using E2 = decltype(expr2);
   using E3 = decltype(expr3);
+  using E4 = decltype(expr4);
   CHECK(numeric_array::concept::compatible_expressions<E1, E2>());
   CHECK(!numeric_array::concept::compatible_expressions<E3, E2>());
   CHECK(numeric_array::concept::compatible_expressions<E3, E1, E2>());
+  CHECK(!numeric_array::concept::compatible_expressions<E3, E1, E4, E2>());
 }
 
 TEST_CASE("map_expression") {
-  NumericArray<double, KShape<3,2>> a1;
+  NumericArray<double, ShapeC<3,2>> a1;
   auto expr1 = make_expression(numeric_array_expression_tag(), a1);
-  // a1 = {1,2,3,4,5,6};
   a1 = {{1, 4}, {2, 5}, {3, 6}};
   auto expr2 = make_expression(numeric_array_expression_tag(), 2.0);
 
@@ -42,8 +45,7 @@ TEST_CASE("map_expression") {
 }
 
 TEST_CASE("arithmetic_expression") {
-  NumericArray<double, KShape<3,2>> a1, a2;
-  // a2 = {1,2,3,4,5,6};
+  NumericArray<double, ShapeC<3,2>> a1, a2;
   a2 = {{1, 4}, {2, 5}, {3, 6}};
   auto e1 = a2*a2;
   auto e2 = (a1 = a2*a2);

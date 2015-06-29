@@ -1,7 +1,9 @@
 #pragma once
 
+#define DETAIL_NS detail_numeric_array
+
+#include <echo/numeric_array/numeric_array_fwd.h>
 #include <echo/k_array.h>
-#include <echo/simd_allocator.h>
 #include <echo/expression_template.h>
 
 #include <echo/numeric_array/expression_template_tag.h>
@@ -9,12 +11,12 @@
 #include <echo/numeric_array/numeric_array_accessor.h>
 #include <echo/numeric_array/numeric_array_initializer.h>
 #include <echo/execution_context.h>
+#include <echo/memory.h>
 
 namespace echo {
 namespace numeric_array {
 
-namespace detail {
-namespace numeric_array {
+namespace DETAIL_NS {
 
 //////////////////////
 // NumericArrayBase //
@@ -28,19 +30,10 @@ template <std::size_t... Indexes, class Scalar, class Shape, class Structure,
           class Allocator>
 class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
                        Structure, Allocator>
-    : public KArray<Scalar, Shape, Allocator>,
-      public expression_template::ExpressionTemplateAssignment<
+    : public NumericArrayAccessor<
           NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
                            Structure, Allocator>,
-          numeric_array_expression_tag, Scalar>,
-      public KArrayAssignment<
-          NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
-                           Structure, Allocator>,
-          Scalar>,
-      public NumericArrayAccessor<
-          NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
-                           Structure, Allocator>,
-          KArray<Scalar, Shape, Allocator>, Shape, Structure>,
+          Shape, Structure>,
       public NumericArrayInitializer<
           NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
                            Structure, Allocator>,
@@ -48,27 +41,23 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
 
       {
   using KArrayBase = KArray<Scalar, Shape, Allocator>;
-  using AssignmentBase = KArrayAssignment<NumericArrayBase, Scalar>;
-  using ExpressionTemplateAssignmentBase =
-      expression_template::ExpressionTemplateAssignment<
-          NumericArrayBase, numeric_array_expression_tag, Scalar>;
-  using AccessorBase =
-      NumericArrayAccessor<NumericArrayBase, KArrayBase, Shape, Structure>;
 
  public:
   using structure = Structure;
-  using KArrayBase::KArrayBase;
-  using AssignmentBase::operator=;
-  using ExpressionTemplateAssignmentBase::operator=;
-  using AccessorBase::operator();
+  using memory_backend_tag =
+      memory_backend_traits::memory_backend_tag<Allocator>;
 
   explicit NumericArrayBase(const Allocator& allocator = Allocator())
-      : KArrayBase(Shape(), allocator) {}
+      : _k_array(Shape(), allocator) {}
+
+  explicit NumericArrayBase(const Shape& shape,
+                            const Allocator& allocator = Allocator())
+      : _k_array(shape, allocator) {}
 
   explicit NumericArrayBase(
       shape_traits::extent_type<Indexes, Shape>... extents,
       const Allocator& allocator = Allocator())
-      : KArrayBase(make_k_shape(extents...), allocator) {
+      : _k_array(make_shape(extents...), allocator) {
     static_assert(!echo::numeric_array::structure::concept::equal_dimensional<
                       Structure>(),
                   "");
@@ -79,35 +68,6 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
   explicit NumericArrayBase(shape_traits::extent_type<0, Shape> extent,
                             const Allocator& allocator = Allocator())
       : KArrayBase(make_k_shape((Indexes, extent)...), allocator) {}
-
-  // broken with intel's compiler //
-  // CONCEPT_MEMBER_REQUIRES(
-  //     shape_traits::num_free_dimensions<Shape>() == 1 &&
-  //     shape_traits::num_dimensions<Shape>() != 1 &&
-  //     !and_c<k_array::is_static_extent<Indexes, Shape>()...>())
-  // explicit NumericArrayBase(index_t n, const Allocator& allocator =
-  // Allocator())
-  //     : KArrayBase(Shape(n), allocator) {}
-
-  // CONCEPT_MEMBER_REQUIRES(
-  //     and_c<k_array::is_static_extent<Indexes, Shape>()...>())
-  // NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
-  //                  const Allocator& allocator = Allocator())
-  //     : KArrayBase(Shape(), allocator) {
-  //   this->initialize(values);
-  // }
-  //
-  // CONCEPT_MEMBER_REQUIRES(
-  //     and_c<!k_array::is_static_extent<Indexes, Shape>()...>())
-  // NumericArrayBase(InitializerMultilist<Scalar, sizeof...(Indexes)> values,
-  //                  const Allocator& allocator = Allocator())
-  //     : KArrayBase(make_k_shape(std::get<Indexes>(
-  //                      InitializerMultilistAccessor<Scalar,
-  //                      sizeof...(Indexes)>(
-  //                          values).extents())...),
-  //                  allocator) {
-  //   this->initialize(values);
-  // }
 
   auto& operator=(InitializerMultilist<
       Scalar, shape_traits::num_dimensions<Shape>()> values) {
@@ -121,29 +81,50 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
     this->initialize(values);
     return *this;
   }
+
+  Scalar* data() { return _k_array.data(); }
+  const Scalar* data() const { return _k_array.data(); }
+  const Scalar* const_data() const { return _k_array.const_data(); }
+
+  const auto& shape() const { return _k_array.shape(); }
+
+  auto& k_array() { return _k_array; }
+  auto& k_array() const { return _k_array; }
+
+ private:
+  KArrayBase _k_array;
 };
-}
 }
 
 //////////////////
 // NumericArray //
 //////////////////
 
-template <class Scalar, class Shape,
-          class Structure = execution_context::structure::general,
-          class Allocator = SimdAllocator<Scalar>>
-struct NumericArray
-    : detail::numeric_array::NumericArrayBase<
+template <class Scalar, class Shape, class Structure, class Allocator>
+class NumericArray
+    : public DETAIL_NS::NumericArrayBase<
           std::make_index_sequence<shape_traits::num_dimensions<Shape>()>,
-          Scalar, Shape, Structure, Allocator> {
+          Scalar, Shape, Structure, Allocator>,
+      public expression_template::ExpressionTemplateAssignment<
+          NumericArray<Scalar, Shape, Structure, Allocator>,
+          numeric_array_expression_tag, Scalar>
+
+      {
  private:
-  using Base = detail::numeric_array::NumericArrayBase<
+  using Base = DETAIL_NS::NumericArrayBase<
       std::make_index_sequence<shape_traits::num_dimensions<Shape>()>, Scalar,
       Shape, Structure, Allocator>;
+  using ExpressionTemplateAssignmentBase =
+      expression_template::ExpressionTemplateAssignment<
+          NumericArray<Scalar, Shape, Structure, Allocator>,
+          numeric_array_expression_tag, Scalar>;
 
  public:
   using Base::Base;
   using Base::operator=;
+  using ExpressionTemplateAssignmentBase::operator=;
 };
 }
 }  // end namespace echo::numeric_array
+
+#undef DETAIL_NS
