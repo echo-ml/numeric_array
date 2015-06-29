@@ -1,4 +1,3 @@
-#include <echo/numeric_array/evaluator.h>
 #include <echo/numeric_array/scalar_evaluator.h>
 #include <echo/numeric_array/flatten_evaluator.h>
 #include <echo/numeric_array/numeric_array_evaluator.h>
@@ -9,35 +8,35 @@
 using namespace echo;
 using namespace echo::numeric_array;
 
-// TEST_CASE("scalar_evaluator") {
-//   auto evaluator = make_scalar_evaluator(2.8);
-//   CHECK(evaluator(2) == 2.8);
-// }
-//
-// TEST_CASE("flatten_evaluator") {
-//   auto scalar_evaluator = make_scalar_evaluator(3.1);
-//   auto flatten_evaluator1 = make_flatten_evaluator<2>(scalar_evaluator);
-//   auto flatten_evaluator2 = make_flatten_evaluator<3>(scalar_evaluator);
-//
-//   CHECK(flatten_evaluator1(0, 0, 0, 0) == 3.1);
-//   CHECK(flatten_evaluator2(0, 0, 0, 0, 0, 0) == 3.1);
-// }
-//
-// TEST_CASE("numeric_array_evaluator") {
-//   double data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-//   auto eval1 = make_numeric_array_evaluator(&data[0]);
-//   CHECK(eval1(0) == 1);
-//   CHECK(eval1(1) == 2);
-// }
-//
+TEST_CASE("scalar_evaluator") {
+  auto evaluator = make_scalar_evaluator(2.8);
+  CHECK(evaluator(2) == 2.8);
+}
+
+TEST_CASE("flatten_evaluator") {
+  auto scalar_evaluator = make_scalar_evaluator(3.1);
+  auto flatten_evaluator1 = make_flatten_evaluator<2>(scalar_evaluator);
+  auto flatten_evaluator2 = make_flatten_evaluator<3>(scalar_evaluator);
+
+  CHECK(flatten_evaluator1(0, 0, 0, 0) == 3.1);
+  CHECK(flatten_evaluator2(0, 0, 0, 0, 0, 0) == 3.1);
+}
+
+TEST_CASE("numeric_array_evaluator") {
+  double data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+  auto eval1 = make_contiguous_numeric_array_evaluator(&data[0]);
+  CHECK(eval1(0) == 1);
+  CHECK(eval1(1) == 2);
+}
+
 // TEST_CASE("numeric_subarray_evaluator1") {
 //   double data[] = {1, 2, 3, 4};
-//   k_array::KShapeStrides<2> shape_strides;
-//   auto eval1 = make_numeric_subarray_evaluator(&data[0], shape_strides);
+//   auto strides = make_strides(2_index);
+//   auto eval1 = make_numeric_subarray_evaluator(&data[0], strides);
 //   CHECK(eval1(0) == 1);
 //   CHECK(eval1(1) == 3);
 // }
-//
+
 // TEST_CASE("numeric_subarray_evaluator2") {
 //   double data[] = {1, 2, 3, 4, 5, 6, 7, 8};
 //   k_array::KShapeStrides<3, Stride::kDynamic> shape_strides(1);

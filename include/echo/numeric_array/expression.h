@@ -2,7 +2,6 @@
 
 #include <echo/assert.h>
 #include <echo/numeric_array/null_dimensionality.h>
-#include <echo/numeric_array/evaluator.h>
 #include <echo/numeric_array/scalar_evaluator.h>
 #include <echo/numeric_array/numeric_array_evaluator.h>
 #include <echo/numeric_array/conversion_evaluator.h>

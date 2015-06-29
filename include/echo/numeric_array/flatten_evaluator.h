@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_flatten_evaluator
+
 #include <echo/execution_context.h>
 
 namespace echo {
@@ -9,9 +11,7 @@ namespace numeric_array {
 // FlattenEvaluator //
 //////////////////////
 
-namespace detail {
-namespace flatten_evaluator {
-
+namespace DETAIL_NS {
 inline index_t flatten_indexes(index_t index, index_t size) { return index; }
 
 template <class... IndexesRest>
@@ -32,12 +32,11 @@ struct FlattenEvaluatorImpl<std::index_sequence<Indexes...>, Derived> {
   }
 };
 }
-}
 
 template <int K, class Evaluator>
 class FlattenEvaluator
-    : public detail::flatten_evaluator::FlattenEvaluatorImpl<
-          std::make_index_sequence<2 * K>, FlattenEvaluator<K, Evaluator> > {
+    : public DETAIL_NS::FlattenEvaluatorImpl<std::make_index_sequence<2 * K>,
+                                             FlattenEvaluator<K, Evaluator> > {
   CONCEPT_ASSERT(execution_context::concept::flat_evaluator<Evaluator>());
 
  public:
@@ -66,11 +65,13 @@ auto make_k_shaped_evaluator(const Evaluator& evaluator) {
   return make_flatten_evaluator<K>(evaluator);
 }
 
-template <int K, class Evaluator,
-          CONCEPT_REQUIRES(
-              execution_context::concept::k_evaluator<K, Evaluator>())>
+template <
+    int K, class Evaluator,
+    CONCEPT_REQUIRES(execution_context::concept::k_evaluator<K, Evaluator>())>
 auto make_k_shaped_evaluator(const Evaluator& evaluator) {
   return evaluator;
 }
 }
 }
+
+#undef DETAIL_NS

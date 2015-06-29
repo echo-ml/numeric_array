@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_copy
+
 #include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/numeric_array_traits.h>
 #include <echo/numeric_array/map_indexes_expression.h>
@@ -13,8 +15,7 @@
 // // copyable //
 // //////////////
 //
-// namespace detail {
-// namespace copy {
+// namespace DETAIL_NS {
 // namespace concept {
 // template <class A, class B>
 // constexpr bool copyable() {
@@ -28,7 +29,6 @@
 // }
 // }
 // }
-// }
 //
 // //////////
 // // copy //
@@ -38,7 +38,7 @@
 //     class ExecutionContext, class NumericArray1, class NumericArray2,
 //     CONCEPT_REQUIRES(
 //         execution_context::concept::expression_executer<ExecutionContext>() &&
-//         detail::copy::concept::copyable<NumericArray1, NumericArray2>() &&
+//         DETAIL_NS::concept::copyable<NumericArray1, NumericArray2>() &&
 //         concept::contiguous_numeric_array<NumericArray1>() &&
 //         concept::contiguous_numeric_array<uncvref_t<NumericArray2>>())>
 // void copy(const ExecutionContext& execution_context,
@@ -53,7 +53,7 @@
 //     class ExecutionContext, class NumericArray1, class NumericArray2,
 //     CONCEPT_REQUIRES(
 //         execution_context::concept::expression_executer<ExecutionContext>() &&
-//         detail::copy::concept::copyable<NumericArray1, NumericArray2>() &&
+//         DETAIL_NS::concept::copyable<NumericArray1, NumericArray2>() &&
 //         (!concept::contiguous_numeric_array<NumericArray1>() ||
 //          !concept::contiguous_numeric_array<uncvref_t<NumericArray2>>()))>
 // void copy(const ExecutionContext& execution_context,

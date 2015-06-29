@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_numeric_array_initializer
+
 #include <echo/utility/initializer_multilist.h>
 #include <echo/k_array.h>
 #include <stdexcept>
@@ -19,9 +21,7 @@ struct InitializationError : virtual std::runtime_error {
 // initialize //
 ////////////////
 
-namespace detail {
-namespace numeric_array_initializer {
-
+namespace DETAIL_NS {
 template <int I, class Scalar, class Functor, class Shape,
           CONCEPT_REQUIRES(I == shape_traits::num_dimensions<Shape>())>
 void initialize_impl(Scalar value, const Shape& shape, const Functor& functor) {
@@ -51,7 +51,6 @@ void initialize(
   });
 }
 }
-}
 
 /////////////////////////////
 // NumericArrayInitializer //
@@ -62,17 +61,15 @@ struct NumericArrayInitializer {
   void initialize(InitializerMultilist<
       Scalar, shape_traits::num_dimensions<Shape>()> values) {
     auto& derived = static_cast<Derived&>(*this);
-    detail::numeric_array_initializer::initialize<Scalar>(
-        values, derived.shape(), derived);
+    DETAIL_NS::initialize<Scalar>(values, derived.shape(), derived);
   }
 
-  CONCEPT_MEMBER_REQUIRES(
-    shape_traits::num_free_dimensions<Shape>() == 1 &&
-    shape_traits::num_dimensions<Shape>() != 1)
+  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1 &&
+                          shape_traits::num_dimensions<Shape>() != 1)
   void initialize(InitializerMultilist<Scalar, 1> values) {
     auto& derived = static_cast<Derived&>(*this);
-    for (int i=0; i<get_num_elements(derived); ++i)
-      derived(i) = *(std::begin(values)+i);
+    for (int i = 0; i < get_num_elements(derived); ++i)
+      derived(i) = *(std::begin(values) + i);
   }
 };
 
@@ -90,9 +87,8 @@ struct NumericArrayConstInitializer
                                           Structure>::initialize(values);
   }
 
-  CONCEPT_MEMBER_REQUIRES(
-    shape_traits::num_free_dimensions<Shape>() == 1 &&
-    shape_traits::num_dimensions<Shape>() != 1)
+  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1 &&
+                          shape_traits::num_dimensions<Shape>() != 1)
   void initialize(InitializerMultilist<Scalar, 1> values) const {
     auto mutable_this = const_cast<NumericArrayConstInitializer*>(this);
     mutable_this->NumericArrayInitializer<Derived, Scalar, Shape,
@@ -101,3 +97,5 @@ struct NumericArrayConstInitializer
 };
 }
 }
+
+#undef DETAIL_NS

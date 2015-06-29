@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_structure
+
 #include <echo/execution_context.h>
 
 namespace echo {
@@ -46,21 +48,23 @@ constexpr bool equal_dimensional() {
 // mergeable //
 ///////////////
 
-namespace detail { namespace structure {
+namespace DETAIL_NS {
 struct Mergeable : Concept {
   template<class A, class B>
   auto require(A&& a, B&& b) -> list<
     execution_context::concept::structure<typename structure_traits::merge<A, B>::type>()
   >;
 };
-}}
+}
 
 template<class A, class B>
 constexpr bool mergeable() {
-  return models<detail::structure::Mergeable, A, B>();
+  return models<DETAIL_NS::Mergeable, A, B>();
 }
 
 }
 };
 }
 }
+
+#undef DETAIL_NS

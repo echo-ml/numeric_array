@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_structure_traits
+
 #include <echo/numeric_array/structure.h>
 
 namespace echo {
@@ -19,9 +21,7 @@ struct merge<T, structure::scalar> {
 // fuse //
 //////////
 
-namespace detail {
-namespace structure_traits {
-
+namespace DETAIL_NS {
 template <class T>
 auto fuse_impl(T) -> T;
 
@@ -49,11 +49,11 @@ template <class A, class B, class... Rest>
 auto fuse_impl(A a, B b,
                Rest... rest) -> decltype(fuse_impl(fuse_impl(a, b), rest...));
 }
-}
 
 template <class... Structures>
-using fuse = decltype(
-    detail::structure_traits::fuse_impl(std::declval<Structures>()...));
+using fuse = decltype(DETAIL_NS::fuse_impl(std::declval<Structures>()...));
 }
 }
 }
+
+#undef DETAIL_NS
