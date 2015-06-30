@@ -8,6 +8,7 @@
 #include <echo/concept.h>
 #include <echo/numeric_array/fuse_evaluator.h>
 #include <echo/numeric_array/concept.h>
+#include <echo/repeat_type.h>
 
 namespace echo {
 namespace numeric_array {
@@ -18,8 +19,7 @@ struct MapEvaluatorImpl {};
 
 template <std::size_t... Ix, class Derived>
 struct MapEvaluatorImpl<std::index_sequence<Ix...>, Derived> {
-  decltype(auto) operator()(
-      std::enable_if_t<Ix || true, index_t>... indexes) const {
+  decltype(auto) operator()(repeat_type_c<Ix, index_t>... indexes) const {
     const auto& derived = static_cast<const Derived&>(*this);
     return map_apply(derived.functor(), derived.evaluators(), indexes...);
   }

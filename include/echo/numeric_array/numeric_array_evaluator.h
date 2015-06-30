@@ -4,6 +4,7 @@
 
 #include <echo/numeric_array/concept.h>
 #include <echo/execution_context.h>
+#include <echo/repeat_type.h>
 
 namespace echo {
 namespace numeric_array {
@@ -74,8 +75,7 @@ struct NumericSubarrayEvaluatorImpl<std::index_sequence<0>, Derived> {
 
 template <std::size_t... Ix, class Derived>
 struct NumericSubarrayEvaluatorImpl<std::index_sequence<Ix...>, Derived> {
-  decltype(auto) operator()(
-      std::enable_if_t<Ix || true, index_t>... indexes) const {
+  decltype(auto) operator()(repeat_type_c<Ix, index_t>... indexes) const {
     const auto& derived = static_cast<const Derived&>(*this);
     index_t offset =
         get_subarray_offset(std::make_index_sequence<sizeof...(Ix) / 2>(),

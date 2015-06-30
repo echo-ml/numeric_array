@@ -3,6 +3,7 @@
 #define DETAIL_NS detail_map_indexes_evaluator
 
 #include <echo/numeric_array/concept.h>
+#include <echo/repeat_type.h>
 
 namespace echo {
 namespace numeric_array {
@@ -50,8 +51,7 @@ struct MapIndexEvaluatorImpl<std::index_sequence<0>, Derived> {
 
 template <std::size_t... Indexes, class Derived>
 struct MapIndexEvaluatorImpl<std::index_sequence<Indexes...>, Derived> {
-  decltype(auto) operator()(
-      std::enable_if_t<Indexes || true, index_t>... indexes) const {
+  decltype(auto) operator()(repeat_type_c<Indexes, index_t>... indexes) const {
     const auto& derived = static_cast<const Derived&>(*this);
     return apply_odd_arguments(derived.functor(), indexes...);
   }

@@ -8,6 +8,7 @@
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/null_dimensionality.h>
 #include <echo/execution_context.h>
+#include <echo/repeat_type.h>
 
 namespace echo {
 namespace numeric_array {
@@ -315,7 +316,7 @@ template <std::size_t... Ix>
 struct IndexFunctor<std::index_sequence<Ix...>> : Concept {
   template <class T>
   auto require(T&& functor) -> list<execution_context::concept::scalar<
-      std::result_of_t<const T(std::enable_if_t<Ix || true, index_t>...)>>()>;
+      std::result_of_t<const T(repeat_type_c<Ix, index_t>...)>>()>;
 };
 }
 

@@ -3,6 +3,7 @@
 #define DETAIL_NS detail_numeric_array_accessor
 
 #include <echo/access_mode.h>
+#include <echo/repeat_type.h>
 #include <type_traits>
 #include <utility>
 
@@ -114,25 +115,21 @@ struct NumericArrayConstAccessorImpl {};
 template <std::size_t... Indexes, class Derived, class Shape, class Structure>
 struct NumericArrayConstAccessorImpl<std::index_sequence<Indexes...>, Derived,
                                      Shape, Structure> {
-  decltype(auto) operator()(
-      access_mode::readonly_t,
-      std::enable_if_t<Indexes || true, index_t>... indexes) const {
+  decltype(auto) operator()(access_mode::readonly_t,
+                            repeat_type_c<Indexes, index_t>... indexes) const {
     const Derived& derived = static_cast<const Derived&>(*this);
     return derived.k_array()(access_mode::readonly, indexes...);
   }
-  decltype(auto) operator()(
-      access_mode::readwrite_t,
-      std::enable_if_t<Indexes || true, index_t>... indexes) const {
+  decltype(auto) operator()(access_mode::readwrite_t,
+                            repeat_type_c<Indexes, index_t>... indexes) const {
     return this->operator()(access_mode::raw, indexes...);
   }
-  decltype(auto) operator()(
-      access_mode::raw_t,
-      std::enable_if_t<Indexes || true, index_t>... indexes) const {
+  decltype(auto) operator()(access_mode::raw_t,
+                            repeat_type_c<Indexes, index_t>... indexes) const {
     const Derived& derived = static_cast<const Derived&>(*this);
     return derived.k_array()(indexes...);
   }
-  decltype(auto) operator()(
-      std::enable_if_t<Indexes || true, index_t>... indexes) const {
+  decltype(auto) operator()(repeat_type_c<Indexes, index_t>... indexes) const {
     return this->operator()(access_mode::readwrite, indexes...);
   }
 };
@@ -145,8 +142,7 @@ struct NumericArrayConstAccessor
           Derived, Shape, Structure>,
       DETAIL_NS::NumericArraySingleIndexConstAccessor<
           Derived, Shape, shape_traits::num_free_dimensions<Shape>() == 1 &&
-                              shape_traits::num_dimensions<Shape>() != 1> 
-{
+                              shape_traits::num_dimensions<Shape>() != 1> {
   using DETAIL_NS::NumericArrayConstAccessorImpl<
       std::make_index_sequence<shape_traits::num_dimensions<Shape>()>, Derived,
       Shape, Structure>::
@@ -174,9 +170,8 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
                                       Shape, Structure>::
   operator();
 
-  decltype(auto) operator()(
-      access_mode::readonly_t,
-      std::enable_if_t<Indexes || true, index_t>... indexes) {
+  decltype(auto) operator()(access_mode::readonly_t,
+                            repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
     using Reference = decltype(*derived.data());
@@ -185,9 +180,8 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
     return const_cast<return_type<Reference, ConstReturn>>(
         const_derived.operator()(access_mode::readonly, indexes...));
   }
-  decltype(auto) operator()(
-      access_mode::readwrite_t,
-      std::enable_if_t<Indexes || true, index_t>... indexes) {
+  decltype(auto) operator()(access_mode::readwrite_t,
+                            repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
     using Reference = decltype(*derived.data());
@@ -196,9 +190,8 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
     return const_cast<return_type<Reference, ConstReturn>>(
         const_derived.operator()(access_mode::readwrite, indexes...));
   }
-  decltype(auto) operator()(
-      access_mode::raw_t,
-      std::enable_if_t<Indexes || true, index_t>... indexes) {
+  decltype(auto) operator()(access_mode::raw_t,
+                            repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
     using Reference = decltype(*derived.data());
@@ -207,8 +200,7 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
     return const_cast<return_type<Reference, ConstReturn>>(
         const_derived.operator()(access_mode::raw, indexes...));
   }
-  decltype(auto) operator()(
-      std::enable_if_t<Indexes || true, index_t>... indexes) {
+  decltype(auto) operator()(repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
     using Reference = decltype(*derived.data());

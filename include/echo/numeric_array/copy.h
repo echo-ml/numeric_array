@@ -69,3 +69,5 @@
 // }
 // }
 // }
+
+#undef DETAIL_NS
