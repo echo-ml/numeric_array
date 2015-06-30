@@ -14,10 +14,9 @@ namespace echo {
 namespace numeric_array {
 namespace concept {
 
-////////////////////////
-// numeric_array_deep //
-////////////////////////
-
+//------------------------------------------------------------------------------
+// numeric_array_deep
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Scalar, class Shape, class Structure, class Allocator>
 auto numeric_array_impl(NumericArray<Scalar, Shape, Structure, Allocator> && )
@@ -33,10 +32,9 @@ constexpr bool numeric_array_deep() {
   return Result::value;
 }
 
-////////////////////////
-// numeric_array_view //
-////////////////////////
-
+//------------------------------------------------------------------------------
+// numeric_array_view
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Pointer, class Shape, class Structure, class MemoryBackendTag>
 auto numeric_array_view_impl(
@@ -54,10 +52,9 @@ constexpr bool numeric_array_view() {
   return Result::value;
 }
 
-///////////////////
-// numeric_array //
-///////////////////
-
+//------------------------------------------------------------------------------
+// numeric_array
+//------------------------------------------------------------------------------
 template <class T>
 constexpr bool numeric_array() {
   return numeric_array_deep<T>() || numeric_array_view<T>();
@@ -67,8 +64,8 @@ namespace DETAIL_NS {
 template <class Structure>
 struct StructuredNumericArray : Concept {
   template <class T>
-  auto require(T&& x)
-      -> list<numeric_array<T>(), same<typename T::structure, Structure>()>;
+  auto require(T&& x) -> list<numeric_array<T>(),
+                              convertible<typename T::structure, Structure>()>;
 };
 }
 
@@ -77,10 +74,9 @@ constexpr bool numeric_array() {
   return models<DETAIL_NS::StructuredNumericArray<Structure>, T>();
 }
 
-//////////////////////////////////////
-// modifiable_numeric_array_forward //
-//////////////////////////////////////
-
+//------------------------------------------------------------------------------
+// modifiable_numeric_array_forward
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct ModifiableNumericArrayForward : Concept {
   template <class T>
@@ -94,10 +90,9 @@ constexpr bool modifiable_numeric_array_forward() {
   return models<DETAIL_NS::ModifiableNumericArrayForward, T>();
 }
 
-//////////////////////////////
-// contiguous_numeric_array //
-//////////////////////////////
-
+//------------------------------------------------------------------------------
+// contiguous_numeric_array
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct ContiguousNumericArray : Concept {
   template <class T>
@@ -117,10 +112,9 @@ constexpr bool contiguous_numeric_array() {
   return contiguous_numeric_array<T>() && numeric_array<Structure, T>();
 }
 
-////////////////////////////
-// dimensioned_expression //
-////////////////////////////
-
+//------------------------------------------------------------------------------
+// dimensioned_expression
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct DimensionedExpression : Concept {
   template <class T>
@@ -150,10 +144,9 @@ constexpr bool dimensioned_expression() {
   return models<DETAIL_NS::KDimensionedExpression<K>, T>();
 }
 
-///////////////////////
-// scalar_expression //
-///////////////////////
-
+//------------------------------------------------------------------------------
+// scalar_expression
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct ScalarExpression : Concept {
   template <class T>
@@ -171,19 +164,17 @@ constexpr bool scalar_expression() {
   return models<DETAIL_NS::ScalarExpression, T>();
 }
 
-////////////////
-// expression //
-////////////////
-
+//------------------------------------------------------------------------------
+// expression
+//------------------------------------------------------------------------------
 template <class T>
 constexpr bool expression() {
   return scalar_expression<T>() || dimensioned_expression<T>();
 }
 
-///////////////////////////
-// compatible_structures //
-///////////////////////////
-
+//------------------------------------------------------------------------------
+// compatible_structures
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct CompatibleStructures : Concept {
   template <class... Tx>
@@ -197,10 +188,9 @@ constexpr bool compatible_structures() {
   return models<DETAIL_NS::CompatibleStructures, Tx...>();
 }
 
-//////////////////////////////
-// structure_convertible_to //
-//////////////////////////////
-
+//------------------------------------------------------------------------------
+// structure_convertible_to
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct StructureConvertibleTo : Concept {
   template <class A, class B>
@@ -213,10 +203,9 @@ constexpr bool structure_convertible_to() {
   return models<DETAIL_NS::StructureConvertibleTo, A, B>();
 }
 
-////////////////////////////
-// compatible_expressions //
-////////////////////////////
-
+//------------------------------------------------------------------------------
+// compatible_expressions
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 
 template <bool, class... Expressions>
@@ -284,10 +273,9 @@ constexpr bool compatible_expressions() {
   return models<DETAIL_NS::CompatibleExpressions, Tx...>();
 }
 
-///////////////////////////////////
-// compatible_functor_evaluators //
-///////////////////////////////////
-
+//------------------------------------------------------------------------------
+// compatible_functor_evaluators
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct CompatibleFunctorEvaluators : Concept {
   template <class Functor, class... Evaluators>
@@ -304,10 +292,9 @@ constexpr bool compatible_functor_evaluators() {
                 Evaluators...>();
 }
 
-///////////////////
-// index_functor //
-///////////////////
-
+//------------------------------------------------------------------------------
+// index_functor
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class>
 struct IndexFunctor {};

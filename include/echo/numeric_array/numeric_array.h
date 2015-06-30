@@ -17,11 +17,9 @@ namespace echo {
 namespace numeric_array {
 
 namespace DETAIL_NS {
-
-//////////////////////
-// NumericArrayBase //
-//////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayBase
+//------------------------------------------------------------------------------
 template <class Indexes, class Scalar, class Shape, class Structure,
           class Allocator>
 class NumericArrayBase {};
@@ -96,10 +94,9 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
 };
 }
 
-//////////////////
-// NumericArray //
-//////////////////
-
+//------------------------------------------------------------------------------
+// NumericArray
+//------------------------------------------------------------------------------
 template <class Scalar, class Shape, class Structure, class Allocator>
 class NumericArray
     : public DETAIL_NS::NumericArrayBase<

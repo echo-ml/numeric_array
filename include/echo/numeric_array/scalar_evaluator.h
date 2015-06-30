@@ -5,10 +5,9 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////////
-// ScalarEvaluator //
-/////////////////////
-
+//------------------------------------------------------------------------------
+// ScalarEvaluator
+//------------------------------------------------------------------------------
 template <class Scalar>
 class ScalarEvaluator {
   CONCEPT_ASSERT(execution_context::concept::scalar<Scalar>());

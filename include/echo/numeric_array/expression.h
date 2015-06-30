@@ -15,10 +15,9 @@
 namespace echo {
 namespace numeric_array {
 
-////////////////////////////
-// NumericArrayExpression //
-////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayExpression
+//------------------------------------------------------------------------------
 template <class Dimensionality, class Structure, class Evaluator>
 class NumericArrayExpression
     : htl::Pack<Dimensionality>,
@@ -71,10 +70,9 @@ auto make_numeric_array_expression(const Dimensionality& dimensionality,
       dimensionality, evaluator);
 }
 
-/////////////////////
-// make_expression //
-/////////////////////
-
+//------------------------------------------------------------------------------
+// make_expression
+//------------------------------------------------------------------------------
 template <class NumericArray,
           CONCEPT_REQUIRES(concept::numeric_array<uncvref_t<NumericArray>>())>
 auto make_expression(numeric_array_expression_tag,

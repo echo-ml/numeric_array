@@ -11,10 +11,9 @@
 namespace echo {
 namespace numeric_array {
 
-//////////////////////
-// NumericArrayView //
-//////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayView
+//------------------------------------------------------------------------------
 template <class Pointer, class Shape, class Structure, class MemoryBackendTag>
 class NumericArrayView
     : public expression_template::ExpressionTemplateConstAssignment<
@@ -70,10 +69,9 @@ class NumericArrayView
   KArrayBase _k_array;
 };
 
-/////////////////////////////
-// make_numeric_array_view //
-/////////////////////////////
-
+//------------------------------------------------------------------------------
+// make_numeric_array_view
+//------------------------------------------------------------------------------
 template <class Pointer, class Shape,
           CONCEPT_REQUIRES(echo::concept::contiguous_iterator<Pointer>() &&
                            k_array::concept::shape<Shape>())>
@@ -100,10 +98,9 @@ auto make_numeric_array_view(Pointer data, const Shape& shape) {
                                                                        shape);
 }
 
-///////////////
-// make_view //
-///////////////
-
+//------------------------------------------------------------------------------
+// make_view
+//------------------------------------------------------------------------------
 template <class Pointer, class Shape, class Structure, class MemoryBackendTag>
 auto make_view(
     const NumericArrayView<Pointer, Shape, Structure, MemoryBackendTag>& view) {
@@ -124,10 +121,9 @@ auto make_view(NumericArray<Scalar, Shape, Structure, Allocator>& array) {
       array.data(), array.shape());
 }
 
-////////////////
-// make_cview //
-////////////////
-
+//------------------------------------------------------------------------------
+// make_cview
+//------------------------------------------------------------------------------
 template <class Pointer, class Shape, class Structure, class MemoryBackendTag>
 auto make_cview(
     const NumericArrayView<Pointer, Shape, Structure, MemoryBackendTag>& view) {

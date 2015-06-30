@@ -9,10 +9,9 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////////////////////////
-// ContiguousNumericArrayEvaluator //
-/////////////////////////////////////
-
+//------------------------------------------------------------------------------
+// ContiguousNumericArrayEvaluator
+//------------------------------------------------------------------------------
 template <class Pointer>
 class ContiguousNumericArrayEvaluator {
   CONCEPT_ASSERT(echo::concept::contiguous_iterator<Pointer>() &&
@@ -35,32 +34,31 @@ auto make_contiguous_numeric_array_evaluator(Pointer data) {
   return ContiguousNumericArrayEvaluator<Pointer>(data);
 }
 
-/////////////////////////
-// get_subarray_offset //
-/////////////////////////
-
+//------------------------------------------------------------------------------
+// get_subarray_offset
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
-template <class Strides, CONCEPT_REQUIRES(k_array::concept::extent<Strides>())>
+template <class Strides,
+          CONCEPT_REQUIRES(k_array::concept::index_tuple<Strides>())>
 index_t get_subarray_offset(std::index_sequence<>, const Strides& strides) {
   return 0;
 }
 template <std::size_t IFirst, std::size_t... IRest, class Strides,
           class... IndexesRest,
-          CONCEPT_REQUIRES(k_array::concept::extent<Strides>())>
+          CONCEPT_REQUIRES(k_array::concept::index_tuple<Strides>())>
 index_t get_subarray_offset(std::index_sequence<IFirst, IRest...>,
                             const Strides& strides, index_t index_first,
                             index_t index_first_size,
                             IndexesRest... indexes_rest) {
-  return get_stride<IFirst>(strides) * index_first +
+  return htl::get<IFirst>(strides) * index_first +
          get_subarray_offset(std::index_sequence<IRest...>(), strides,
                              indexes_rest...);
 }
 }
 
-//////////////////////////////
-// NumericSubarrayEvaluator //
-//////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericSubarrayEvaluator
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class, class>
 struct NumericSubarrayEvaluatorImpl {};
@@ -69,7 +67,7 @@ template <class Derived>
 struct NumericSubarrayEvaluatorImpl<std::index_sequence<0>, Derived> {
   decltype(auto) operator()(index_t i) const {
     const auto& derived = static_cast<const Derived&>(*this);
-    return *(derived.data() + get_stride<0>(derived.strides()) * i);
+    return *(derived.data() + htl::get<0>(derived.strides()) * i);
   }
 };
 
@@ -96,7 +94,7 @@ class NumericSubarrayEvaluator
           NumericSubarrayEvaluator<Pointer, Strides>> {
  public:
   NumericSubarrayEvaluator(Pointer data, const Strides& strides)
-      : _data(data), htl::Pack<Strides>(strides) {}
+      : htl::Pack<Strides>(strides), _data(data) {}
   auto data() const { return _data; }
   const auto& strides() const { return htl::unpack<Strides>(*this); }
 
@@ -110,10 +108,9 @@ auto make_numeric_subarray_evaluator(Pointer data, const Strides& strides) {
   return NumericSubarrayEvaluator<Pointer, Strides>(data, strides);
 }
 
-//////////////////////////////////
-// make_numeric_array_evaluator //
-//////////////////////////////////
-
+//------------------------------------------------------------------------------
+// make_numeric_array_evaluator
+//------------------------------------------------------------------------------
 template <class NumericArray,
           CONCEPT_REQUIRES(
               concept::contiguous_numeric_array<uncvref_t<NumericArray>>())>

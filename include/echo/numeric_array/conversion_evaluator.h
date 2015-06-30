@@ -5,6 +5,9 @@
 namespace echo {
 namespace numeric_array {
 
+//------------------------------------------------------------------------------
+// make_conversion_evaluator
+//------------------------------------------------------------------------------
 template <
     int K, class Structure1, class Structure2, class Evaluator,
     CONCEPT_REQUIRES(

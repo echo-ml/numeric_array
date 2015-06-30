@@ -6,10 +6,9 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////
-// map_indexes //
-/////////////////
-
+//------------------------------------------------------------------------------
+// map_indexes
+//------------------------------------------------------------------------------
 template <
     class Functor, class... Extents,
     CONCEPT_REQUIRES(and_c<k_array::concept::extent<Extents>()...>()),

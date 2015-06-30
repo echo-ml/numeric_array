@@ -13,6 +13,9 @@
 namespace echo {
 namespace numeric_array {
 
+//------------------------------------------------------------------------------
+// MapEvaluator
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class, class>
 struct MapEvaluatorImpl {};

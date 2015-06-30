@@ -9,18 +9,16 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////////////
-// InitializationError //
-/////////////////////////
-
+//------------------------------------------------------------------------------
+// InitializationError
+//------------------------------------------------------------------------------
 struct InitializationError : virtual std::runtime_error {
   InitializationError() : std::runtime_error("InitializationError") {}
 };
 
-////////////////
-// initialize //
-////////////////
-
+//------------------------------------------------------------------------------
+// initialize
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <int I, class Scalar, class Functor, class Shape,
           CONCEPT_REQUIRES(I == shape_traits::num_dimensions<Shape>())>
@@ -52,10 +50,9 @@ void initialize(
 }
 }
 
-/////////////////////////////
-// NumericArrayInitializer //
-/////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayInitializer
+//------------------------------------------------------------------------------
 template <class Derived, class Scalar, class Shape, class Structure>
 struct NumericArrayInitializer {
   void initialize(InitializerMultilist<
@@ -73,10 +70,9 @@ struct NumericArrayInitializer {
   }
 };
 
-//////////////////////////////////
-// NumericArrayConstInitializer //
-//////////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayConstInitializer
+//------------------------------------------------------------------------------
 template <class Derived, class Scalar, class Shape, class Structure>
 struct NumericArrayConstInitializer
     : NumericArrayInitializer<Derived, Scalar, Shape, Structure> {

@@ -15,10 +15,9 @@ namespace numeric_array {
 
 namespace DETAIL_NS {
 
-///////////////////
-// extents_check //
-///////////////////
-
+//------------------------------------------------------------------------------
+// extents_check
+//------------------------------------------------------------------------------
 template <int I, class Shape, class SizeType,
           CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
                            I == shape_traits::num_dimensions<Shape>())>
@@ -38,10 +37,9 @@ void extents_check(
   CHECK(get_extent<I>(shape) == extents[I]);
 }
 
-/////////////////////
-// apply_predicate //
-/////////////////////
-
+//------------------------------------------------------------------------------
+// apply_predicate
+//------------------------------------------------------------------------------
 template <int I, class Shape, class Functor,
           CONCEPT_REQUIRES(k_array::concept::shape<Shape>() &&
                            I == shape_traits::num_dimensions<Shape>())>
@@ -59,10 +57,9 @@ void apply_predicate(const Shape& shape, const Functor& functor) {
   }
 }
 
-/////////////////
-// array_check //
-/////////////////
-
+//------------------------------------------------------------------------------
+// array_check
+//------------------------------------------------------------------------------
 template <class Scalar, int N, class Pointer, class Shape, class Structure,
           class MemoryBackendTag, class Predicate>
 void array_check_impl(

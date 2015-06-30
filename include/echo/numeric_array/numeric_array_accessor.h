@@ -10,10 +10,9 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////
-// return_type //
-/////////////////
-
+//------------------------------------------------------------------------------
+// return_type
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Reference, class ConstReturn>
 struct return_type_impl {};
@@ -37,10 +36,9 @@ template <class Reference, class ConstReturn>
 using return_type = typename return_type_impl<Reference, ConstReturn>::type;
 }
 
-//////////////////////////////////////////
-// NumericArraySingleIndexConstAccessor //
-//////////////////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArraySingleIndexConstAccessor
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Derived, class Shape, bool HasSingleFreeDimension>
 struct NumericArraySingleIndexConstAccessor {
@@ -71,10 +69,9 @@ struct NumericArraySingleIndexConstAccessor<Derived, Shape, true> {
 };
 }
 
-/////////////////////////////////////
-// NumericArraySingelIndexAccessor //
-/////////////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArraySingleIndexAccessor
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Derived, class Shape, bool HasSingleFreeDimension>
 struct NumericArraySingleIndexAccessor {
@@ -104,10 +101,9 @@ struct NumericArraySingleIndexAccessor<Derived, Shape, true>
 };
 }
 
-///////////////////////////////
-// NumericArrayConstAccessor //
-///////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayConstAccessor
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Indexes, class Derived, class Shape, class Structure>
 struct NumericArrayConstAccessorImpl {};
@@ -153,10 +149,9 @@ struct NumericArrayConstAccessor
   operator();
 };
 
-//////////////////////////
-// NumericArrayAccessor //
-//////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayAccessor
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Indexes, class Derived, class Shape, class Structure>
 struct NumericArrayAccessorImpl {};

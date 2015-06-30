@@ -8,10 +8,9 @@
 namespace echo {
 namespace numeric_array {
 
-//////////////////////
-// FlattenEvaluator //
-//////////////////////
-
+//------------------------------------------------------------------------------
+// FlattenEvaluator
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 inline index_t flatten_indexes(index_t index, index_t size) { return index; }
 
@@ -54,21 +53,20 @@ auto make_flatten_evaluator(const Evaluator& evaluator) {
   return FlattenEvaluator<K, Evaluator>(evaluator);
 }
 
-/////////////////////////////
-// make_k_shaped_evaluator //
-/////////////////////////////
-
+//------------------------------------------------------------------------------
+// make_k_evaluator
+//------------------------------------------------------------------------------
 template <
     int K, class Evaluator,
     CONCEPT_REQUIRES(execution_context::concept::flat_evaluator<Evaluator>())>
-auto make_k_shaped_evaluator(const Evaluator& evaluator) {
+auto make_k_evaluator(const Evaluator& evaluator) {
   return make_flatten_evaluator<K>(evaluator);
 }
 
 template <
     int K, class Evaluator,
     CONCEPT_REQUIRES(execution_context::concept::k_evaluator<K, Evaluator>())>
-auto make_k_shaped_evaluator(const Evaluator& evaluator) {
+auto make_k_evaluator(const Evaluator& evaluator) {
   return evaluator;
 }
 }

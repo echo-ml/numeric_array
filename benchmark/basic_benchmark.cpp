@@ -20,14 +20,13 @@ BENCHMARK_SET("basic_expression", NumTrials(5), NumEpochs(1),
   NumericArray<double, Shape<index_t>> X1(N), Y1(N);
   std::fill_n(X1.data(), N, 0);
   std::fill_n(Y1.data(), N, 0);
-  // for (auto&& x : all_range(X1)) x = dist(rng);
+  for (auto&& x : all_range(X1)) x = dist(rng);
   BENCHMARK("b1") { executer(execution_mode::simd, Y1 = X1 * X1); }
   BENCHMARK("b2") {
     auto map_expr = make_map_expression(
         numeric_array_expression_tag(), [](double x) { return x * x; },
         make_expression(numeric_array_expression_tag(), X1));
     auto expr = Y1 = map_expr;
-    auto eval = expr.evaluator();
     executer(execution_mode::simd, Y1 = expr);
   }
   touchstone::do_not_optimize_away(Y1.data());

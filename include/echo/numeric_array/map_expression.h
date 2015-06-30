@@ -9,10 +9,9 @@
 namespace echo {
 namespace numeric_array {
 
-//////////////////////////////////////
-// get_first_dimensioned_expression //
-//////////////////////////////////////
-
+//------------------------------------------------------------------------------
+// get_first_dimensioned_expression
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class ExpressionFirst, class... ExpressionsRest,
           CONCEPT_REQUIRES(concept::dimensioned_expression<ExpressionFirst>())>
@@ -31,10 +30,9 @@ const auto& get_first_dimensioned_expression(
 }
 }
 
-/////////////////////////
-// make_map_expression //
-/////////////////////////
-
+//------------------------------------------------------------------------------
+// make_map_expression
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 // bug with intel compiler requires breaking this out separately
 template <class Functor, class... Expressions>
@@ -69,10 +67,9 @@ auto make_map_expression(numeric_array_expression_tag, const Functor& functor,
                        expressions.evaluator())...));
 }
 
-///////////////////////////////////////
-// make_binary_arithmetic_expression //
-///////////////////////////////////////
-
+//------------------------------------------------------------------------------
+// make_binary_arithmetic_expression
+//------------------------------------------------------------------------------
 template <class Functor, class Lhs, class Rhs,
           CONCEPT_REQUIRES(DETAIL_NS::check_arguments<Functor, Lhs, Rhs>())>
 auto make_binary_arithmetic_expression(numeric_array_expression_tag,

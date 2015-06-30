@@ -53,5 +53,4 @@ TEST_CASE("arithmetic_expression") {
   eval(0); eval(5);
   CHECK(a1(0,0) == 1);
   CHECK(a1(2,1) == 36);
-  // auto expr = (a1 = a2*a2);
 }

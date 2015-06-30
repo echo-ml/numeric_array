@@ -8,10 +8,9 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////////////
-// apply_odd_arguments //
-/////////////////////////
-
+//------------------------------------------------------------------------------
+// apply_odd_arguments
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class Functor, class ArgumentFirst, class ArgumentSecond>
 decltype(auto) apply_odd_arguments(const Functor& functor,
@@ -33,10 +32,9 @@ decltype(auto) apply_odd_arguments(const Functor& functor,
 }
 }
 
-///////////////////////
-// MapIndexEvaluator //
-///////////////////////
-
+//------------------------------------------------------------------------------
+// MapIndexEvaluator
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 template <class, class Derived>
 struct MapIndexEvaluatorImpl {};
