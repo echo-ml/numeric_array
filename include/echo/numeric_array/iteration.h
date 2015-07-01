@@ -16,7 +16,7 @@ template <class NumericArray,
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>())>
 auto all_begin(NumericArray&& numeric_array) {
-  return numeric_array.data();
+  return all_begin(numeric_array.k_array());
 }
 
 //------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ template <class NumericArray,
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>())>
 auto all_end(NumericArray&& numeric_array) {
-  return all_begin(numeric_array) + get_num_elements(numeric_array);
+  return all_end(numeric_array.k_array());
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ template <class NumericArray,
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>())>
 auto all_cbegin(NumericArray&& numeric_array) {
-  return numeric_array.const_data();
+  return all_cbegin(numeric_array.k_array());
 }
 
 //------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ template <class NumericArray,
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>())>
 auto all_cend(NumericArray&& numeric_array) {
-  return all_cbegin(numeric_array) + get_num_elements(numeric_array);
+  return all_cend(numeric_array.k_array());
 }
 
 //------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ template <class NumericArray,
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>())>
 auto all_range(NumericArray&& numeric_array) {
-  return make_range(all_begin(numeric_array), all_end(numeric_array));
+  return all_range(numeric_array.k_array());
 }
 
 //------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ template <class NumericArray,
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>())>
 auto all_crange(NumericArray&& numeric_array) {
-  return make_range(all_cbegin(numeric_array), all_cend(numeric_array));
+  return all_crange(numeric_array.k_array());
 }
 }
 }
