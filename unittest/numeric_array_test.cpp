@@ -78,13 +78,13 @@ TEST_CASE("numeric_array") {
 }
 
 TEST_CASE("construction") {
-  // NumericArray<double, Shape<StaticIndex<1>, index_t>> n1(
-  //     make_shape(1_index, 10));
-  // CHECK(get_num_elements(n1) == 10);
-  //
-  // n1 = {1,2,3,4,5,6,7,8,9,10};
-  // CHECK(n1(0) == 1);
-  // CHECK(n1(9) == 10);
+  NumericArray<double, Shape<StaticIndex<1>, index_t>> n1(
+      make_shape(1_index, 10));
+  CHECK(get_num_elements(n1) == 10);
+
+  n1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  CHECK(n1(0) == 1);
+  CHECK(n1(9) == 10);
 }
 
 TEST_CASE("accessor") {
@@ -96,28 +96,32 @@ TEST_CASE("accessor") {
 
 TEST_CASE("1-d accessor") {
   NumericArray<double, ShapeC<3>> n1;
-  n1(0) = 1; n1(1) = 2; n1(2) = 3;
-  auto values123 = {1,2,3};
-  CHECK(std::equal(std::begin(values123), std::end(values123), n1.const_data()));
+  n1(0) = 1;
+  n1(1) = 2;
+  n1(2) = 3;
+  auto values123 = {1, 2, 3};
+  CHECK(
+      std::equal(std::begin(values123), std::end(values123), n1.const_data()));
 
   NumericArray<double, ShapeC<1, 3>> n2;
-  n2(0) = 1; n2(1) = 2; n2(2) = 3;
-  CHECK(std::equal(std::begin(values123), std::end(values123), n2.const_data()));
-  CHECK(n2(0,0) == 1);
+  n2(0) = 1;
+  n2(1) = 2;
+  n2(2) = 3;
+  CHECK(
+      std::equal(std::begin(values123), std::end(values123), n2.const_data()));
+  CHECK(n2(0, 0) == 1);
 
-  double data[] = {1,2,3,4,5,6};
-  auto v1 = make_numeric_array_view(data, 
-    make_subshape(
-      make_dimensionality(1_index, 2_index),
-      make_strides(1_index, 3_index)
-    ));
+  double data[] = {1, 2, 3, 4, 5, 6};
+  auto v1 = make_numeric_array_view(
+      data, make_subshape(make_dimensionality(1_index, 2_index),
+                          make_strides(1_index, 3_index)));
   CHECK(v1(0) == 1);
   CHECK(v1(1) == 4);
   CHECK(v1(0, 1) == 4);
 }
 
 TEST_CASE("initialization") {
-  NumericArray<double, ShapeC<2,3>> n1;
+  NumericArray<double, ShapeC<2, 3>> n1;
   n1 = {{1, 2, 3}, {4, 5, 6}};
   CHECK(n1(0, 0) == 1);
   CHECK(n1(1, 2) == 6);
@@ -129,22 +133,24 @@ TEST_CASE("initialization") {
 }
 
 TEST_CASE("array_equal") {
-  NumericArray<double, ShapeC<2,3>> n1;
-  n1 = {{1,2,3}, {4,5,6}};
-  ARRAY_EQUAL(n1, {{1, 2, 3}, {4,5,6}});
+  NumericArray<double, ShapeC<2, 3>> n1;
+  n1 = {{1, 2, 3}, {4, 5, 6}};
+  ARRAY_EQUAL(n1, {{1, 2, 3}, {4, 5, 6}});
 
   NumericArray<double, ShapeC<3, 1>> n2;
   n2 = {4, 5, 6};
-  ARRAY_EQUAL(n2, {{4},{5},{6}});
+  ARRAY_EQUAL(n2, {{4}, {5}, {6}});
 }
 
 // TEST_CASE("copyable") {
 //   NumericArray<double, KShape<3, 2>> n1, n2;
 //   n1 = {{1,2}, {3, 4}, {5,6}};
 //   auto v1 =
-//       make_numeric_array_view(n1.data(), slice(n1.shape(), 2_index, 2_index));
+//       make_numeric_array_view(n1.data(), slice(n1.shape(), 2_index,
+//       2_index));
 //   auto v2 =
-//       make_numeric_array_view(n2.data(), slice(n2.shape(), 2_index, 2_index));
+//       make_numeric_array_view(n2.data(), slice(n2.shape(), 2_index,
+//       2_index));
 //
 //   SECTION("contiguous_copy") {
 //     copy(executer, n1, n2);
