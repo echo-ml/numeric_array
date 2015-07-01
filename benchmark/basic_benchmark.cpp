@@ -1,5 +1,6 @@
 #include <echo/numeric_array.h>
 #include <echo/tbb_expression_executer.h>
+#include <echo/pragma.h>
 #include <touchstone/touchstone.h>
 
 using namespace echo;
@@ -41,12 +42,12 @@ BENCHMARK_SET("basic_expression", NumTrials(5), NumEpochs(1),
   std::vector<double> X2(N), Y2(N);
   for (int i = 0; i < N; ++i) X2[i] = dist(rng);
   BENCHMARK("b4") {
-#pragma simd
+ECHO_PRAGMA_SIMD
     for (int i = 0; i < N; ++i) Y2[i] = X2[i] * X2[i];
   }
   BENCHMARK("b5") {
-#pragma simd
-#pragma vector nontemporal
+ECHO_PRAGMA_SIMD
+ECHO_PRAGMA_NONTEMPORAL
     for (int i = 0; i < N; ++i) Y2[i] = X2[i] * X2[i];
   }
   touchstone::do_not_optimize_away(Y2.data());
