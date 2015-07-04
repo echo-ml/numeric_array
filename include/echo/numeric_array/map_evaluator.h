@@ -2,7 +2,7 @@
 
 #define DETAIL_NS detail_map_evaluator
 
-#include <echo/utility.h>
+#include <echo/utility/map_apply.h>
 #include <echo/index.h>
 #include <echo/type_traits.h>
 #include <echo/concept.h>

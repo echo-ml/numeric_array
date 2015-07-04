@@ -5,6 +5,7 @@
 #include <echo/numeric_array/numeric_array_fwd.h>
 #include <echo/numeric_array/numeric_array_view_fwd.h>
 #include <echo/numeric_array/structure_traits.h>
+#include <echo/numeric_array/numeric_array_traits.h>
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/null_dimensionality.h>
 #include <echo/execution_context.h>
@@ -72,6 +73,21 @@ struct StructuredNumericArray : Concept {
 template <class Structure, class T>
 constexpr bool numeric_array() {
   return models<DETAIL_NS::StructuredNumericArray<Structure>, T>();
+}
+
+namespace DETAIL_NS {
+template <int K>
+struct KNumericArray : Concept {
+  template <class T>
+  auto require(T&& numeric_array) -> list<
+      concept::numeric_array<T>(),
+      k_array::concept::shape<K, uncvref_t<decltype(numeric_array.shape())>>()>;
+};
+}
+
+template <int K, class T>
+constexpr bool numeric_array() {
+  return models<DETAIL_NS::KNumericArray<K>, T>();
 }
 
 //------------------------------------------------------------------------------
@@ -204,6 +220,25 @@ constexpr bool structure_convertible_to() {
 }
 
 //------------------------------------------------------------------------------
+// compatible_numeric_arrays
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct CompatibleNumericArrays : Concept {
+  template <class A, class B>
+  auto require(A&& a, B&& b) -> list<
+      k_array::concept::compatible_k_arrays<uncvref_t<decltype(a.k_array())>,
+                                            uncvref_t<decltype(b.k_array())>>(),
+      compatible_structures<numeric_array_traits::structure<A>,
+                            numeric_array_traits::structure<B>>()>;
+};
+}
+
+template <class A, class B>
+constexpr bool compatible_numeric_arrays() {
+  return models<DETAIL_NS::CompatibleNumericArrays, A, B>();
+}
+
+//------------------------------------------------------------------------------
 // compatible_expressions
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
@@ -240,10 +275,10 @@ using first_dimensioned_expression =
 
 template <class Dimensionality, class... Expressions>
 auto compatible_expression_dimensionalities_impl(int) -> std::integral_constant<
-    bool,
-    and_c<std::is_same<Dimensionality, expression_traits::dimensionality_type<
-                                           Expressions>>::value ||
-          scalar_expression<Expressions>()...>()>;
+    bool, and_c<k_array::concept::compatible_dimensionalities<
+                    Dimensionality,
+                    expression_traits::dimensionality_type<Expressions>>() ||
+                scalar_expression<Expressions>()...>()>;
 
 template <class Dimensionality, class... Expressions>
 auto compatible_expression_dimensionalities_impl(...) -> std::false_type;

@@ -142,23 +142,23 @@ TEST_CASE("array_equal") {
   ARRAY_EQUAL(n2, {{4}, {5}, {6}});
 }
 
-// TEST_CASE("copyable") {
-//   NumericArray<double, KShape<3, 2>> n1, n2;
-//   n1 = {{1,2}, {3, 4}, {5,6}};
-//   auto v1 =
-//       make_numeric_array_view(n1.data(), slice(n1.shape(), 2_index,
-//       2_index));
-//   auto v2 =
-//       make_numeric_array_view(n2.data(), slice(n2.shape(), 2_index,
-//       2_index));
-//
-//   SECTION("contiguous_copy") {
-//     copy(executer, n1, n2);
-//     ARRAY_EQUAL(n2, {{1,2},{3,4},{5,6}});
-//   }
-//
-//   SECTION("noncontiguous_copy") {
-//     copy(executer, v1, v2);
-//     ARRAY_EQUAL(v2, {{1,2},{3,4}});
-//   }
-// }
+TEST_CASE("copyable") {
+  NumericArray<double, ShapeC<3, 2>> n1, n2;
+  n1 = {{1, 2}, {3, 4}, {5, 6}};
+  auto v1 = make_numeric_array_view(
+      n1.data(), make_subshape(n1.shape(), slice::counted_range(0, 2_index),
+                               slice::counted_range(0, 2_index)));
+  auto v2 = make_numeric_array_view(
+      n2.data(), make_subshape(n2.shape(), slice::counted_range(0, 2_index),
+                               slice::counted_range(0, 2_index)));
+
+  SECTION("contiguous_copy") {
+    copy(executer, n1, n2);
+    ARRAY_EQUAL(n2, {{1, 2}, {3, 4}, {5, 6}});
+  }
+
+  SECTION("noncontiguous_copy") {
+    copy(executer, v1, v2);
+    ARRAY_EQUAL(v2, {{1, 2}, {3, 4}});
+  }
+}

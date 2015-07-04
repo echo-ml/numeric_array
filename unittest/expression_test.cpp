@@ -8,8 +8,8 @@ using namespace echo;
 using namespace echo::numeric_array;
 
 TEST_CASE("expression_test") {
-  NumericArray<double, ShapeC<3,2>> a1;
-  NumericArray<double, ShapeC<2,3>> a2;
+  NumericArray<double, ShapeC<3, 2>> a1;
+  NumericArray<double, ShapeC<2, 3>> a2;
   auto expr1 = make_expression(numeric_array_expression_tag(), a1);
   auto expr2 = make_expression(numeric_array_expression_tag(), 2.0);
   auto expr3 = make_expression(numeric_array_expression_tag(), 3.0);
@@ -26,13 +26,13 @@ TEST_CASE("expression_test") {
 }
 
 TEST_CASE("map_expression") {
-  NumericArray<double, ShapeC<3,2>> a1;
+  NumericArray<double, ShapeC<3, 2>> a1;
   auto expr1 = make_expression(numeric_array_expression_tag(), a1);
   a1 = {{1, 4}, {2, 5}, {3, 6}};
   auto expr2 = make_expression(numeric_array_expression_tag(), 2.0);
 
   auto expr3 = make_map_expression(numeric_array_expression_tag(),
-    std::plus<double>(), expr1, expr2);
+                                   std::plus<double>(), expr1, expr2);
 
   const auto& eval = expr3.evaluator();
   CHECK(eval(0) == 3.0);
@@ -45,12 +45,25 @@ TEST_CASE("map_expression") {
 }
 
 TEST_CASE("arithmetic_expression") {
-  NumericArray<double, ShapeC<3,2>> a1, a2;
+  NumericArray<double, ShapeC<3, 2>> a1, a2;
   a2 = {{1, 4}, {2, 5}, {3, 6}};
-  auto e1 = a2*a2;
-  auto e2 = (a1 = a2*a2);
+  auto e1 = a2 * a2;
+  auto e2 = (a1 = a2 * a2);
   auto eval = e2.evaluator();
-  eval(0); eval(5);
-  CHECK(a1(0,0) == 1);
-  CHECK(a1(2,1) == 36);
+  eval(0);
+  eval(5);
+  CHECK(a1(0, 0) == 1);
+  CHECK(a1(2, 1) == 36);
+}
+
+TEST_CASE("heterogenous_expression") {
+  NumericArray<double, ShapeC<3, 2>> a1;
+  NumericArray<double, Shape<index_t, index_t>> a2(make_shape(3, 2));
+  a2 = {{1, 4}, {2, 5}, {3, 6}};
+  auto e1 = (a1 = a2 * a2);
+  auto eval = e1.evaluator();
+  eval(0);
+  eval(5);
+  CHECK(a1(0, 0) == 1);
+  CHECK(a1(2, 1) == 36);
 }
