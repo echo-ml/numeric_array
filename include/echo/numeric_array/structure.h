@@ -20,7 +20,7 @@ namespace structure {
 
 struct scalar : execution_context::structure::base {};
 
-struct equal_dimensional : execution_context::structure::base {};
+struct equal_dimensional : virtual execution_context::structure::base {};
 
 namespace concept {
 
