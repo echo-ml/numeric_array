@@ -79,14 +79,15 @@ namespace DETAIL_NS {
 template <int K>
 struct KNumericArray : Concept {
   template <class T>
-  auto require(T&& numeric_array) -> list<
-      concept::numeric_array<T>(),
-      k_array::concept::shape<K, uncvref_t<decltype(numeric_array.shape())>>()>;
+  auto require(T&& numeric_array)
+      -> list<concept::numeric_array<T>(),
+              k_array::concept::shape_<
+                  K, uncvref_t<decltype(numeric_array.shape())>>()>;
 };
 }
 
 template <int K, class T>
-constexpr bool numeric_array() {
+constexpr bool numeric_array_() {
   return models<DETAIL_NS::KNumericArray<K>, T>();
 }
 
