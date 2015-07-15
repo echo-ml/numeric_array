@@ -5,6 +5,7 @@
 #include <echo/numeric_array/expression.h>
 #include <echo/numeric_array/map_evaluator.h>
 #include <echo/numeric_array/conversion_evaluator.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace numeric_array {
@@ -31,6 +32,51 @@ const auto& get_first_dimensioned_expression(
 }
 
 //------------------------------------------------------------------------------
+// are_dimensionalities_equal
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+template <class Dimensionality>
+bool are_dimensionalities_equal_impl(const Dimensionality&) {
+  return true;
+}
+
+template <class Dimensionality, class ExpressionFirst, class... ExpressionsRest,
+          CONCEPT_REQUIRES(concept::dimensioned_expression<ExpressionFirst>())>
+bool are_dimensionalities_equal_impl(
+    const Dimensionality& dimensionality,
+    const ExpressionFirst& expression_first,
+    const ExpressionsRest&... expressions_rest);
+
+template <class Dimensionality, class ExpressionFirst, class... ExpressionsRest,
+          CONCEPT_REQUIRES(concept::scalar_expression<ExpressionFirst>())>
+bool are_dimensionalities_equal_impl(
+    const Dimensionality& dimensionality,
+    const ExpressionFirst& expression_first,
+    const ExpressionsRest&... expressions_rest) {
+  return are_dimensionalities_equal_impl(dimensionality, expressions_rest...);
+}
+
+template <class Dimensionality, class ExpressionFirst, class... ExpressionsRest,
+          CONCEPT_REQUIRES_REDECLARATION(
+              concept::dimensioned_expression<ExpressionFirst>())>
+bool are_dimensionalities_equal_impl(
+    const Dimensionality& dimensionality,
+    const ExpressionFirst& expression_first,
+    const ExpressionsRest&... expressions_rest) {
+  return dimensionality == get_dimensionality(expression_first) &&
+         are_dimensionalities_equal_impl(dimensionality, expressions_rest...);
+}
+
+template <class... Expressions,
+          CONCEPT_REQUIRES(concept::compatible_expressions<Expressions...>())>
+bool are_dimensionalities_equal(const Expressions&... expressions) {
+  auto dimensionality =
+      get_dimensionality(get_first_dimensioned_expression(expressions...));
+  return are_dimensionalities_equal_impl(dimensionality, expressions...);
+}
+}
+
+//------------------------------------------------------------------------------
 // make_map_expression
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
@@ -52,6 +98,9 @@ template <
     CONCEPT_REQUIRES(DETAIL_NS::check_arguments<Functor, Expressions...>())>
 auto make_map_expression(numeric_array_expression_tag, const Functor& functor,
                          const Expressions&... expressions) {
+  CONTRACT_EXPECT {
+    CONTRACT_ASSERT(DETAIL_NS::are_dimensionalities_equal(expressions...));
+  };
   using structure =
       structure_traits::fuse<expression_traits::structure<Expressions>...>;
   const auto& dimensionality =
@@ -75,6 +124,9 @@ template <class Functor, class Lhs, class Rhs,
 auto make_binary_arithmetic_expression(numeric_array_expression_tag,
                                        const Functor& functor, const Lhs& lhs,
                                        const Rhs& rhs) {
+  CONTRACT_EXPECT {
+    CONTRACT_ASSERT(DETAIL_NS::are_dimensionalities_equal(lhs, rhs));
+  };
   return make_map_expression(numeric_array_expression_tag(), functor, lhs, rhs);
 }
 
@@ -83,6 +135,9 @@ template <class Functor, class Lhs, class Rhs,
 auto make_assignment_expression(numeric_array_expression_tag,
                                 const Functor& functor, const Lhs& lhs,
                                 const Rhs& rhs) {
+  CONTRACT_EXPECT {
+    CONTRACT_ASSERT(DETAIL_NS::are_dimensionalities_equal(lhs, rhs));
+  };
   return make_map_expression(numeric_array_expression_tag(), functor, lhs, rhs);
 }
 }

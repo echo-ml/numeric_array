@@ -4,6 +4,8 @@
 
 #include <echo/access_mode.h>
 #include <echo/repeat_type.h>
+#include <echo/k_array.h>
+#include <echo/contract.h>
 #include <type_traits>
 #include <utility>
 
@@ -50,20 +52,34 @@ template <class Derived, class Shape>
 struct NumericArraySingleIndexConstAccessor<Derived, Shape, true> {
   decltype(auto) operator()(access_mode::readonly_t, index_t index) const {
     const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     return *(derived.const_data() +
              index *
                  get_stride<shape_traits::free_dimension<Shape>()>(derived));
   }
   decltype(auto) operator()(access_mode::readwrite_t, index_t index) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     return this->operator()(access_mode::raw, index);
   }
   decltype(auto) operator()(access_mode::raw_t, index_t index) const {
     const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     return *(derived.data() +
              index *
                  get_stride<shape_traits::free_dimension<Shape>()>(derived));
   }
   decltype(auto) operator()(index_t index) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     return this->operator()(access_mode::readwrite, index);
   }
 };
@@ -84,11 +100,18 @@ struct NumericArraySingleIndexAccessor<Derived, Shape, true>
     : NumericArraySingleIndexConstAccessor<Derived, Shape, true> {
   using NumericArraySingleIndexConstAccessor<Derived, Shape, true>::operator();
   decltype(auto) operator()(access_mode::readwrite_t, index_t index) {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     return this->operator()(access_mode::raw, index);
   }
   decltype(auto) operator()(access_mode::raw_t, index_t index) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     using Reference = decltype(*derived.data());
     using ConstReturn =
         decltype(const_derived.operator()(access_mode::readwrite, index));
@@ -96,6 +119,10 @@ struct NumericArraySingleIndexAccessor<Derived, Shape, true>
         const_derived.operator()(access_mode::readwrite, index));
   }
   decltype(auto) operator()(index_t index) {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
+    };
     return this->operator()(access_mode::readwrite, index);
   }
 };
@@ -114,18 +141,36 @@ struct NumericArrayConstAccessorImpl<std::index_sequence<Indexes...>, Derived,
   decltype(auto) operator()(access_mode::readonly_t,
                             repeat_type_c<Indexes, index_t>... indexes) const {
     const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     return derived.k_array()(access_mode::readonly, indexes...);
   }
   decltype(auto) operator()(access_mode::readwrite_t,
                             repeat_type_c<Indexes, index_t>... indexes) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     return this->operator()(access_mode::raw, indexes...);
   }
   decltype(auto) operator()(access_mode::raw_t,
                             repeat_type_c<Indexes, index_t>... indexes) const {
     const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     return derived.k_array()(indexes...);
   }
   decltype(auto) operator()(repeat_type_c<Indexes, index_t>... indexes) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     return this->operator()(access_mode::readwrite, indexes...);
   }
 };
