@@ -214,6 +214,10 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
                             repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     using Reference = decltype(*derived.data());
     using ConstReturn =
         decltype(const_derived.operator()(access_mode::readonly, indexes...));
@@ -224,6 +228,10 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
                             repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     using Reference = decltype(*derived.data());
     using ConstReturn =
         decltype(const_derived.operator()(access_mode::readwrite, indexes...));
@@ -234,6 +242,10 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
                             repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     using Reference = decltype(*derived.data());
     using ConstReturn =
         decltype(const_derived.operator()(access_mode::raw, indexes...));
@@ -243,6 +255,10 @@ struct NumericArrayAccessorImpl<std::index_sequence<Indexes...>, Derived, Shape,
   decltype(auto) operator()(repeat_type_c<Indexes, index_t>... indexes) {
     const Derived& const_derived = static_cast<const Derived&>(*this);
     Derived& derived = static_cast<Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          within_dimensions(get_dimensionality(derived), {indexes...}));
+    };
     using Reference = decltype(*derived.data());
     using ConstReturn = decltype(const_derived.operator()(indexes...));
     return const_cast<return_type<Reference, ConstReturn>>(
