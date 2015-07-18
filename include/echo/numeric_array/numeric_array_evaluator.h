@@ -3,8 +3,10 @@
 #define DETAIL_NS detail_numeric_array_evaluator
 
 #include <echo/numeric_array/concept.h>
+#include <echo/numeric_array/evaluator.h>
 #include <echo/execution_context.h>
 #include <echo/repeat_type.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace numeric_array {
@@ -20,7 +22,13 @@ class ContiguousNumericArrayEvaluator {
 
  public:
   ContiguousNumericArrayEvaluator(Pointer data) : _data(data) {}
-  decltype(auto) operator()(index_t index) const { return *(_data + index); }
+  decltype(auto) operator()(index_t index) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(_data != nullptr);
+      CONTRACT_ASSERT(valid_evaluation(index));
+    };
+    return *(_data + index);
+  }
 
  private:
   Pointer _data;
@@ -75,6 +83,10 @@ template <std::size_t... Ix, class Derived>
 struct NumericSubarrayEvaluatorImpl<std::index_sequence<Ix...>, Derived> {
   decltype(auto) operator()(repeat_type_c<Ix, index_t>... indexes) const {
     const auto& derived = static_cast<const Derived&>(*this);
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(derived.data() != nullptr);
+      CONTRACT_ASSERT(valid_evaluation(indexes...));
+    };
     index_t offset =
         get_subarray_offset(std::make_index_sequence<sizeof...(Ix) / 2>(),
                             derived.strides(), indexes...);

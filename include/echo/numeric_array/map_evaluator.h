@@ -2,12 +2,14 @@
 
 #define DETAIL_NS detail_map_evaluator
 
+#include <echo/numeric_array/fuse_evaluator.h>
+#include <echo/numeric_array/concept.h>
+#include <echo/numeric_array/evaluator.h>
 #include <echo/utility/map_apply.h>
 #include <echo/index.h>
 #include <echo/type_traits.h>
 #include <echo/concept.h>
-#include <echo/numeric_array/fuse_evaluator.h>
-#include <echo/numeric_array/concept.h>
+#include <echo/contract.h>
 #include <echo/repeat_type.h>
 
 namespace echo {
@@ -23,6 +25,7 @@ struct MapEvaluatorImpl {};
 template <std::size_t... Ix, class Derived>
 struct MapEvaluatorImpl<std::index_sequence<Ix...>, Derived> {
   decltype(auto) operator()(repeat_type_c<Ix, index_t>... indexes) const {
+    CONTRACT_EXPECT { CONTRACT_ASSERT(valid_evaluation(indexes...)); };
     const auto& derived = static_cast<const Derived&>(*this);
     return map_apply(derived.functor(), derived.evaluators(), indexes...);
   }

@@ -19,8 +19,8 @@ TEST_CASE("flatten_evaluator") {
   auto flatten_evaluator1 = make_flatten_evaluator<2>(scalar_evaluator);
   auto flatten_evaluator2 = make_flatten_evaluator<3>(scalar_evaluator);
 
-  CHECK(flatten_evaluator1(0, 0, 0, 0) == 3.1);
-  CHECK(flatten_evaluator2(0, 0, 0, 0, 0, 0) == 3.1);
+  CHECK(flatten_evaluator1(0, 1, 0, 1) == 3.1);
+  CHECK(flatten_evaluator2(0, 1, 0, 1, 0, 1) == 3.1);
 }
 
 TEST_CASE("numeric_array_evaluator") {
@@ -68,7 +68,7 @@ TEST_CASE("map_evaluator") {
       make_flatten_evaluator<2>(make_scalar_evaluator(4.0));
   auto eval = make_map_evaluator<2>(std::plus<double>(), scalar_evaluator1,
                                     scalar_evaluator2);
-  CHECK(eval(0, 0, 0, 0) == 7);
+  CHECK(eval(0, 1, 0, 1) == 7);
 }
 
 TEST_CASE("map_evaluator2") {

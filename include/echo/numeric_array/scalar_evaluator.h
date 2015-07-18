@@ -1,6 +1,8 @@
 #pragma once
 
+#include <echo/numeric_array/evaluator.h>
 #include <echo/execution_context.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace numeric_array {
@@ -15,7 +17,10 @@ class ScalarEvaluator {
  public:
   ScalarEvaluator(Scalar scalar) : _scalar(scalar) {}
 
-  Scalar operator()(index_t index) const { return _scalar; }
+  Scalar operator()(index_t index) const {
+    CONTRACT_EXPECT { CONTRACT_ASSERT(valid_evaluation(index)); };
+    return _scalar;
+  }
 
  private:
   Scalar _scalar;

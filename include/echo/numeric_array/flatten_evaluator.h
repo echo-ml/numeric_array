@@ -2,8 +2,10 @@
 
 #define DETAIL_NS detail_flatten_evaluator
 
+#include <echo/numeric_array/evaluator.h>
 #include <echo/execution_context.h>
 #include <echo/repeat_type.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace numeric_array {
@@ -26,6 +28,7 @@ struct FlattenEvaluatorImpl {};
 template <std::size_t... Indexes, class Derived>
 struct FlattenEvaluatorImpl<std::index_sequence<Indexes...>, Derived> {
   decltype(auto) operator()(repeat_type_c<Indexes, index_t>... indexes) const {
+    CONTRACT_EXPECT { CONTRACT_ASSERT(valid_evaluation(indexes...)); };
     const auto& derived = static_cast<const Derived&>(*this);
     return derived.evaluator()(flatten_indexes(indexes...));
   }
