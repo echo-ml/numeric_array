@@ -16,5 +16,11 @@ using structure = typename uncvref_t<NumericArray>::structure;
 //------------------------------------------------------------------------------
 template <class NumericArray>
 using value_type = uncvref_t<decltype(*std::declval<NumericArray>().data())>;
+
+//------------------------------------------------------------------------------
+// memory_backend_tag
+//------------------------------------------------------------------------------
+template<class NumericArray>
+using memory_backend_tag = typename NumericArray::memory_backend_tag;
 }
 }

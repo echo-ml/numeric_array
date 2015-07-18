@@ -130,6 +130,24 @@ constexpr bool contiguous_numeric_array() {
 }
 
 //------------------------------------------------------------------------------
+// like_valued_numeric_arrays
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct LikeValuedNumericArrays : Concept {
+  template <class AFirst, class... ARest>
+  auto require(AFirst&& a_first, ARest&&... a_rest)
+      -> list<and_c<numeric_array<AFirst>(), numeric_array<ARest>()...>(),
+              and_c<same<numeric_array_traits::value_type<AFirst>,
+                         numeric_array_traits::value_type<ARest>>()...>()>;
+};
+}
+
+template<class... AX>
+constexpr bool like_valued_numeric_arrays() {
+  return models<DETAIL_NS::LikeValuedNumericArrays, AX...>();
+}
+
+//------------------------------------------------------------------------------
 // dimensioned_expression
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {

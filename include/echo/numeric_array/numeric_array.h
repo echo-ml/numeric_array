@@ -65,7 +65,7 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
       echo::numeric_array::structure::concept::equal_dimensional<Structure>())
   explicit NumericArrayBase(shape_traits::extent_type<0, Shape> extent,
                             const Allocator& allocator = Allocator())
-      : KArrayBase(make_k_shape((Indexes, extent)...), allocator) {}
+      : _k_array(make_shape((Indexes, extent)...), allocator) {}
 
   auto& operator=(InitializerMultilist<
       Scalar, shape_traits::num_dimensions<Shape>()> values) {
