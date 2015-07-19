@@ -130,21 +130,54 @@ constexpr bool contiguous_numeric_array() {
 }
 
 //------------------------------------------------------------------------------
-// like_valued_numeric_arrays
+// real_numeric_array
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-struct LikeValuedNumericArrays : Concept {
-  template <class AFirst, class... ARest>
-  auto require(AFirst&& a_first, ARest&&... a_rest)
-      -> list<and_c<numeric_array<AFirst>(), numeric_array<ARest>()...>(),
-              and_c<same<numeric_array_traits::value_type<AFirst>,
-                         numeric_array_traits::value_type<ARest>>()...>()>;
+struct RealNumericArray : Concept {
+  template <class T>
+  auto require(T&& a)
+      -> list<numeric_array<T>(), execution_context::concept::real_scalar<
+                                      uncvref_t<decltype(*a.data())>>()>;
 };
 }
 
-template<class... AX>
-constexpr bool like_valued_numeric_arrays() {
-  return models<DETAIL_NS::LikeValuedNumericArrays, AX...>();
+template <class T>
+constexpr bool real_numeric_array() {
+  return models<DETAIL_NS::RealNumericArray, T>();
+}
+
+//------------------------------------------------------------------------------
+// complex_numeric_array
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct ComplexNumericArray : Concept {
+  template <class T>
+  auto require(T&& a)
+      -> list<numeric_array<T>(), execution_context::concept::complex_scalar<
+                                      uncvref_t<decltype(*a.data())>>()>;
+};
+}
+
+template <class T>
+constexpr bool complex_numeric_array() {
+  return models<DETAIL_NS::ComplexNumericArray, T>();
+}
+
+//------------------------------------------------------------------------------
+// standard_numeric_array
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct StandardNumericArray : Concept {
+  template <class T>
+  auto require(T&& a) -> list<
+      numeric_array<T>(), execution_context::concept::standard_numeric_scalar<
+                              uncvref_t<decltype(*a.data())>>()>;
+};
+}
+
+template <class T>
+constexpr bool standard_numeric_array() {
+  return models<DETAIL_NS::StandardNumericArray, T>();
 }
 
 //------------------------------------------------------------------------------
