@@ -166,16 +166,16 @@ TEST_CASE("copyable") {
 
 TEST_CASE("numeric_subarray") {
   NumericArray<double, ShapeC<3, 4>> n1;
-  n1 = {{1,2,3,4}, {4,5,6,7}, {8,9,10,11}};
+  n1 = {{1, 2, 3, 4}, {4, 5, 6, 7}, {8, 9, 10, 11}};
 
   auto s1 = make_numeric_subarray(n1, slice::all, slice::all);
   ARRAY_EQUAL(s1, {{1, 2, 3, 4}, {4, 5, 6, 7}, {8, 9, 10, 11}});
 
   auto s2 = make_numeric_subarray(n1, slice::all, slice::counted_range(1, 3));
-  ARRAY_EQUAL(s2, {{2, 3, 4}, {5,6,7}, {9,10,11}});
+  ARRAY_EQUAL(s2, {{2, 3, 4}, {5, 6, 7}, {9, 10, 11}});
 
   auto s3 = make_numeric_subarray(n1, slice::range(1, 3), slice::all);
-  ARRAY_EQUAL(s3, {{4,5,6,7}, {8,9,10,11}});
+  ARRAY_EQUAL(s3, {{4, 5, 6, 7}, {8, 9, 10, 11}});
 
   auto s4 = make_numeric_subarray(n1, 1, slice::all);
   ARRAY_EQUAL(s4, {4, 5, 6, 7});
