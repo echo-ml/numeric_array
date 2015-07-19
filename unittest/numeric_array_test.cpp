@@ -1,5 +1,6 @@
 #include <echo/numeric_array/numeric_array.h>
 #include <echo/numeric_array/numeric_array_view.h>
+#include <echo/numeric_array/numeric_subarray.h>
 #include <echo/numeric_array/iteration.h>
 #include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/map_expression.h>
@@ -161,4 +162,21 @@ TEST_CASE("copyable") {
     copy(executer, v1, v2);
     ARRAY_EQUAL(v2, {{1, 2}, {3, 4}});
   }
+}
+
+TEST_CASE("numeric_subarray") {
+  NumericArray<double, ShapeC<3, 4>> n1;
+  n1 = {{1,2,3,4}, {4,5,6,7}, {8,9,10,11}};
+
+  auto s1 = make_numeric_subarray(n1, slice::all, slice::all);
+  ARRAY_EQUAL(s1, {{1, 2, 3, 4}, {4, 5, 6, 7}, {8, 9, 10, 11}});
+
+  auto s2 = make_numeric_subarray(n1, slice::all, slice::counted_range(1, 3));
+  ARRAY_EQUAL(s2, {{2, 3, 4}, {5,6,7}, {9,10,11}});
+
+  auto s3 = make_numeric_subarray(n1, slice::range(1, 3), slice::all);
+  ARRAY_EQUAL(s3, {{4,5,6,7}, {8,9,10,11}});
+
+  auto s4 = make_numeric_subarray(n1, 1, slice::all);
+  ARRAY_EQUAL(s4, {4, 5, 6, 7});
 }

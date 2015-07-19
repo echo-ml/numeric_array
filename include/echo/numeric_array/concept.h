@@ -291,6 +291,24 @@ constexpr bool compatible_numeric_arrays() {
 }
 
 //------------------------------------------------------------------------------
+// numeric_subarray
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct NumericSubarray : Concept {
+  template <class A, class... Slices>
+  auto require(A&& a, Slices&&... slices)
+      -> list<numeric_array<execution_context::structure::general, A>(),
+              k_array::concept::shape<
+                  decltype(k_array::make_subshape(a.shape(), slices...))>()>;
+};
+}
+
+template <class A, class... Slices>
+constexpr bool numeric_subarray() {
+  return models<DETAIL_NS::NumericSubarray, A, Slices...>();
+}
+
+//------------------------------------------------------------------------------
 // compatible_expressions
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
