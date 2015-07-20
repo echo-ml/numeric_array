@@ -66,7 +66,8 @@ void copy(const ExecutionContext& execution_context,
   };
   auto expression =
       map_indexes(assignment_functor, get_dimensionality(destination));
-  execution_context(execution_mode::simd | execution_mode::parallel_coarse,
+  execution_context(execution_mode::nontemporal | execution_mode::simd |
+                        execution_mode::parallel_coarse,
                     expression);
 }
 }
