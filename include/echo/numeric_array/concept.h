@@ -297,7 +297,9 @@ namespace DETAIL_NS {
 struct NumericSubarray : Concept {
   template <class A, class... Slices>
   auto require(A&& a, Slices&&... slices)
-      -> list<numeric_array<execution_context::structure::general, A>(),
+      -> list<models<DETAIL_NS::StructuredNumericArray<
+                         execution_context::structure::general>,
+                     A>(), //work around for intel bug
               k_array::concept::shape<
                   decltype(k_array::make_subshape(a.shape(), slices...))>()>;
 };

@@ -7,6 +7,7 @@
 #include <echo/numeric_array/map_indexes_expression.h>
 #include <echo/numeric_array/test.h>
 #include <echo/numeric_array/copy.h>
+#include <echo/numeric_array/print.h>
 #include <echo/tbb_expression_executer.h>
 #include <catch.hpp>
 #include <numeric>
@@ -179,4 +180,14 @@ TEST_CASE("numeric_subarray") {
 
   auto s4 = make_numeric_subarray(n1, 1, slice::all);
   ARRAY_EQUAL(s4, {4, 5, 6, 7});
+}
+
+TEST_CASE("print_numeric_array") {
+  NumericArray<int, ShapeC<2>> n1;
+  n1 = {1, 2};
+  CHECK(to_string(n1) == "{1, 2}");
+
+  NumericArray<int, ShapeC<3, 2>> n2;
+  n2 = {{1, 2}, {3, 4}, {5, 6}};
+  CHECK(to_string(n2) == "{{1, 2}, {3, 4}, {5, 6}}");
 }
