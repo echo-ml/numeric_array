@@ -13,7 +13,6 @@ namespace numeric_array {
 // print_impl
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-
 template <class Accessor, class Extent>
 void print_impl(std::ostream& out, const Accessor& accessor,
                 const htl::Tuple<Extent>& extent) {

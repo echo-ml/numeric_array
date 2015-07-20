@@ -14,7 +14,6 @@ namespace echo {
 namespace numeric_array {
 
 namespace DETAIL_NS {
-
 //------------------------------------------------------------------------------
 // extents_check
 //------------------------------------------------------------------------------
@@ -60,21 +59,14 @@ void apply_predicate(const Shape& shape, const Functor& functor) {
 //------------------------------------------------------------------------------
 // array_check
 //------------------------------------------------------------------------------
-template <class Scalar, int N, class Pointer, class Shape, class Structure,
-          class MemoryBackendTag, class Predicate>
-void array_check_impl(
-    NumericArrayView<Pointer, Shape, Structure, MemoryBackendTag> array1,
-    InitializerMultilist<Scalar, N> values, const Predicate& predicate) {
-  auto accessor = InitializerMultilistAccessor<Scalar, N>(values);
-  const auto& shape = array1.shape();
-
-  extents_check<0>(shape, accessor.extents());
-
+template <class Shape, class Accessor1, class Accessor2, class Predicate>
+void array_check_impl(const Shape& shape, const Accessor1& accessor1,
+                      const Accessor2& accessor2, const Predicate& predicate) {
   apply_predicate<0>(shape, [&](auto... indexes) {
     std::ostringstream oss;
     [](auto...) {}((oss << indexes << " ", 0)...);
     INFO("index = ( " << oss.str() << ")");
-    predicate(array1(indexes...), accessor(indexes...));
+    predicate(accessor1(indexes...), accessor2(indexes...));
   });
 }
 
@@ -88,7 +80,8 @@ void array_check(
   constexpr int N = shape_traits::num_dimensions<Shape>();
   auto accessor = InitializerMultilistAccessor<Scalar, N>(values);
   const auto& shape = array1.shape();
-  array_check_impl<Scalar, N>(array1, values, [=](auto x, auto y) {
+  extents_check<0>(shape, accessor.extents());
+  array_check_impl(shape, array1, accessor, [=](auto x, auto y) {
     if (tolerance == 0.0)
       CHECK(x == y);
     else
@@ -119,6 +112,21 @@ void array_check(
     const NumericArray<Scalar, Shape, Structure, Allocator>& array1,
     double tolerance = 0.0) {
   array_check(make_cview(array1), values, tolerance);
+}
+
+template <
+    class NumericArray1, class NumericArray2,
+    CONCEPT_REQUIRES(numeric_array::concept::numeric_array<NumericArray1>() &&
+                     numeric_array::concept::numeric_array<NumericArray2>())>
+void array_check(const NumericArray1& array1, const NumericArray2& array2,
+                 double tolerance = 0.0) {
+  CHECK(get_dimensionality(array1) == get_dimensionality(array2));
+  array_check_impl(array1.shape(), array1, array2, [=](auto x, auto y) {
+    if (tolerance == 0.0)
+      CHECK(x == y);
+    else
+      CHECK(x == Approx(y).epsilon(tolerance));
+  });
 }
 }
 }

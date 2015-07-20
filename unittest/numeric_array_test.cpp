@@ -182,6 +182,13 @@ TEST_CASE("numeric_subarray") {
   ARRAY_EQUAL(s4, {4, 5, 6, 7});
 }
 
+TEST_CASE("numeric_array_equal") {
+  NumericArray<double, ShapeC<2, 3>> n1;
+  n1 = {{1, 2, 3}, {4,5,6}};
+  ARRAY_EQUAL(n1, n1);
+  ARRAY_EQUAL(n1, make_cview(n1));
+}
+
 TEST_CASE("print_numeric_array") {
   NumericArray<int, ShapeC<2>> n1;
   n1 = {1, 2};
