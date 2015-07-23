@@ -61,6 +61,12 @@ TEST_CASE("numeric_array") {
     CHECK(assign2.evaluator()(1) == 3);
   }
 
+  SECTION("scalar assignment") {
+    auto assign1 = array3 = 7;
+    executer(assign1);
+    CHECK(array3(0, 0) == 7);
+  }
+
   SECTION("serial evaluator") {
     auto assign1 = (array3 = sqrt(array1));
     executer(assign1);
