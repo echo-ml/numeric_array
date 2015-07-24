@@ -1,7 +1,6 @@
 #pragma once
 
 #include <echo/numeric_array/concept.h>
-#include <echo/utility/range.h>
 #include <echo/k_array.h>
 
 namespace echo {
