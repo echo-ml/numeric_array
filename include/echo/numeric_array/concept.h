@@ -291,6 +291,29 @@ constexpr bool compatible_numeric_arrays() {
 }
 
 //------------------------------------------------------------------------------
+// numeric_array_convertible_to
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct NumericArrayConvertibleTo : Concept {
+  template <class A, class B>
+  auto require(A&& a, B&& b)
+      -> list<numeric_array<A>(), numeric_array<B>(),
+              compatible_structures<numeric_array_traits::structure<A>,
+                                    numeric_array_traits::structure<B>>(),
+              k_array::concept::compatible_dimensionalities<
+                  uncvref_t<decltype(get_dimensionality(a))>,
+                  uncvref_t<decltype(get_dimensionality(b))>>(),
+              convertible<uncvref_t<decltype(*a.data())>,
+                          uncvref_t<decltype(*b.data())>>()>;
+};
+}
+
+template <class A, class B>
+constexpr bool numeric_array_convertible_to() {
+  return models<DETAIL_NS::NumericArrayConvertibleTo, A, B>();
+}
+
+//------------------------------------------------------------------------------
 // numeric_subarray
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {

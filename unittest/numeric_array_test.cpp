@@ -5,6 +5,7 @@
 #include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/map_expression.h>
 #include <echo/numeric_array/map_indexes_expression.h>
+#include <echo/numeric_array/reduction_expression.h>
 #include <echo/numeric_array/test.h>
 #include <echo/numeric_array/copy.h>
 #include <echo/numeric_array/print.h>
@@ -59,6 +60,11 @@ TEST_CASE("numeric_array") {
 
     CHECK(assign1.evaluator()(2) == std::sqrt(2));
     CHECK(assign2.evaluator()(1) == 3);
+  }
+
+  SECTION("reduction expression") {
+    auto expr = sum_elements(array1);
+    CHECK(executer(expr) == 5*6/2);
   }
 
   SECTION("scalar assignment") {
@@ -160,6 +166,10 @@ TEST_CASE("copyable") {
       n2.data(), make_subshape(n2.shape(), slice::counted_range(0, 2_index),
                                slice::counted_range(0, 2_index)));
 
+  NumericArray<double, ShapeC<3, 2>> n3;
+  NumericArray<float, ShapeC<3, 2>> n4;
+  n3 = {{1, 2}, {3, 4}, {5, 6}};
+  n4 = {{2, 3}, {4, 5}, {6, 7}};
   SECTION("contiguous_copy") {
     copy(executer, n1, n2);
     ARRAY_EQUAL(n2, {{1, 2}, {3, 4}, {5, 6}});
@@ -168,6 +178,15 @@ TEST_CASE("copyable") {
   SECTION("noncontiguous_copy") {
     copy(executer, v1, v2);
     ARRAY_EQUAL(v2, {{1, 2}, {3, 4}});
+  }
+
+  SECTION("convertible_copy1") {
+    copy(executer, n3, n4);
+    ARRAY_EQUAL(n4, {{1, 2}, {3, 4}, {5, 6}});
+  }
+  SECTION("convertible_copy1") {
+    copy(executer, n4, n3);
+    ARRAY_EQUAL(n3, {{2, 3}, {4, 5}, {6, 7}});
   }
 }
 
@@ -190,7 +209,7 @@ TEST_CASE("numeric_subarray") {
 
 TEST_CASE("numeric_array_equal") {
   NumericArray<double, ShapeC<2, 3>> n1;
-  n1 = {{1, 2, 3}, {4,5,6}};
+  n1 = {{1, 2, 3}, {4, 5, 6}};
   ARRAY_EQUAL(n1, n1);
   ARRAY_EQUAL(n1, make_cview(n1));
 }
