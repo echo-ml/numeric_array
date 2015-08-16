@@ -3,14 +3,14 @@
 #define DETAIL_NS detail_numeric_array
 
 #include <echo/numeric_array/numeric_array_fwd.h>
-#include <echo/k_array.h>
-#include <echo/expression_template.h>
-
+#include <echo/numeric_array/concept.h>
 #include <echo/numeric_array/expression_template_tag.h>
 #include <echo/numeric_array/structure.h>
 #include <echo/numeric_array/numeric_array_accessor.h>
 #include <echo/numeric_array/numeric_array_initializer.h>
+#include <echo/numeric_array/copy.h>
 #include <echo/execution_context.h>
+#include <echo/expression_template.h>
 #include <echo/memory.h>
 
 namespace echo {
@@ -149,6 +149,21 @@ auto make_numeric_array(const Dimensionality<Extents...>& dimensionality,
   return NumericArray<Scalar, decltype(shape),
                       execution_context::structure::general, Allocator>(
       shape, allocator);
+}
+
+template <
+    class ExecutionContext, class X,
+    CONCEPT_REQUIRES(
+        execution_context::concept::expression_executer<ExecutionContext>() &&
+        execution_context::concept::allocation_backend<ExecutionContext>() &&
+        concept::numeric_array<uncvref_t<X>>())>
+auto make_numeric_array(const ExecutionContext& execution_context, X&& x) {
+  using Scalar = numeric_array_traits::value_type<uncvref_t<X>>;
+  using Structure = numeric_array_traits::structure<uncvref_t<X>>;
+  auto result = make_numeric_array<Scalar, Structure>(
+      get_dimensionality(x), make_aligned_allocator<Scalar>(execution_context));
+  copy(execution_context, x, result);
+  return result;
 }
 }
 }  // end namespace echo::numeric_array
