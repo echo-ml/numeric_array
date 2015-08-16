@@ -91,6 +91,10 @@ TEST_CASE("numeric_array") {
   }
 }
 
+TEST_CASE("make_numeric_array") {
+  auto n1 = make_numeric_array<double>(make_dimensionality(3, 4));
+}
+
 TEST_CASE("construction") {
   NumericArray<double, Shape<StaticIndex<1>, index_t>> n1(
       make_shape(1_index, 10));

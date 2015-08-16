@@ -121,6 +121,35 @@ class NumericArray
   using Base::operator=;
   using ExpressionTemplateAssignmentBase::operator=;
 };
+
+//------------------------------------------------------------------------------
+// make_numeric_array
+//------------------------------------------------------------------------------
+template <class Scalar, class Structure, class... Extents,
+          class Allocator = memory::SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           and_c<k_array::concept::extent<Extents>()...>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_numeric_array(const Dimensionality<Extents...>& dimensionality,
+                        const Allocator& allocator = Allocator()) {
+  auto shape = make_shape(dimensionality);
+  return NumericArray<Scalar, decltype(shape), Structure, Allocator>(shape,
+                                                                     allocator);
+}
+
+template <class Scalar, class... Extents,
+          class Allocator = memory::SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           and_c<k_array::concept::extent<Extents>()...>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_numeric_array(const Dimensionality<Extents...>& dimensionality,
+                        const Allocator& allocator = Allocator()) {
+  auto shape = make_shape(dimensionality);
+  return NumericArray<Scalar, decltype(shape),
+                      execution_context::structure::general, Allocator>(
+      shape, allocator);
+}
 }
 }  // end namespace echo::numeric_array
 
