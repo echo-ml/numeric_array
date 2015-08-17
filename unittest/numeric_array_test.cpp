@@ -236,3 +236,28 @@ TEST_CASE("1-element numeric array") {
   n1 = {3};
   CHECK(n1(0) == 3);
 }
+
+TEST_CASE("iteration") {
+  NumericArray<int, ShapeC<6, 1>> n1;
+  n1 = {1, 2, 3, 4, 5, 6};
+  auto first1 = begin(n1);
+  auto last1 = end(n1);
+  CHECK(*first1 == 1);
+  CHECK(std::distance(first1, last1) == 6);
+
+  auto n2 = make_numeric_array_view(
+      n1.data(), make_subshape(make_dimensionality(2_index, 1_index),
+                               make_strides(3_index, 3_index)));
+  auto first2 = cbegin(n2);
+  auto last2 = cend(n2);
+  CHECK(*first2 == 1);
+  CHECK(*std::next(first2) == 4);
+  CHECK(std::distance(first2, last2) == 2);
+
+  NumericArray<int, ShapeC<1, 1>> n3;
+  n3 = {22};
+  auto first3 = begin(n3);
+  auto last3 = end(n3);
+  CHECK(*first3 == 22);
+  CHECK(std::next(first3) == last3);
+}

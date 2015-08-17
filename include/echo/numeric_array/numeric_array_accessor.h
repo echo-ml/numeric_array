@@ -2,6 +2,7 @@
 
 #define DETAIL_NS detail_numeric_array_accessor
 
+#include <echo/numeric_array/utility.h>
 #include <echo/access_mode.h>
 #include <echo/repeat_type.h>
 #include <echo/k_array.h>
@@ -42,18 +43,6 @@ using return_type = typename return_type_impl<Reference, ConstReturn>::type;
 // NumericArraySingleIndexConstAccessor
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-
-template <class Shape,
-          CONCEPT_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1)>
-auto get_single_index_stride(const Shape& shape) {
-  return get_stride<shape_traits::free_dimension<Shape>()>(shape);
-}
-
-template <class Shape,
-          CONCEPT_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 0)>
-auto get_single_index_stride(const Shape& shape) {
-  return 0_index;
-}
 
 template <class Derived, class Shape, bool HasSingleFreeDimension>
 struct NumericArraySingleIndexConstAccessor {
