@@ -61,7 +61,7 @@ struct NumericArrayInitializer {
     DETAIL_NS::initialize<Scalar>(values, derived.shape(), derived);
   }
 
-  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1 &&
+  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() <= 1 &&
                           shape_traits::num_dimensions<Shape>() != 1)
   void initialize(InitializerMultilist<Scalar, 1> values) {
     auto& derived = static_cast<Derived&>(*this);
@@ -83,7 +83,7 @@ struct NumericArrayConstInitializer
                                           Structure>::initialize(values);
   }
 
-  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1 &&
+  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() <= 1 &&
                           shape_traits::num_dimensions<Shape>() != 1)
   void initialize(InitializerMultilist<Scalar, 1> values) const {
     auto mutable_this = const_cast<NumericArrayConstInitializer*>(this);

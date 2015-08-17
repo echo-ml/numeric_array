@@ -227,3 +227,9 @@ TEST_CASE("print_numeric_array") {
   n2 = {{1, 2}, {3, 4}, {5, 6}};
   CHECK(to_string(n2) == "{{1, 2}, {3, 4}, {5, 6}}");
 }
+
+TEST_CASE("1-element numeric array") {
+  NumericArray<double, ShapeC<1, 1>> n1;
+  n1 = {3};
+  CHECK(n1(0) == 3);
+}

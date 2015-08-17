@@ -42,6 +42,19 @@ using return_type = typename return_type_impl<Reference, ConstReturn>::type;
 // NumericArraySingleIndexConstAccessor
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
+
+template <class Shape,
+          CONCEPT_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1)>
+auto get_single_index_stride(const Shape& shape) {
+  return get_stride<shape_traits::free_dimension<Shape>()>(shape);
+}
+
+template <class Shape,
+          CONCEPT_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 0)>
+auto get_single_index_stride(const Shape& shape) {
+  return 0_index;
+}
+
 template <class Derived, class Shape, bool HasSingleFreeDimension>
 struct NumericArraySingleIndexConstAccessor {
   template <bool X = true, std::enable_if_t<X && false, int> = 0>
@@ -56,8 +69,7 @@ struct NumericArraySingleIndexConstAccessor<Derived, Shape, true> {
       CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
     };
     return *(derived.const_data() +
-             index *
-                 get_stride<shape_traits::free_dimension<Shape>()>(derived));
+             index * get_single_index_stride(derived.shape()));
   }
   decltype(auto) operator()(access_mode::readwrite_t, index_t index) const {
     const Derived& derived = static_cast<const Derived&>(*this);
@@ -71,9 +83,7 @@ struct NumericArraySingleIndexConstAccessor<Derived, Shape, true> {
     CONTRACT_EXPECT {
       CONTRACT_ASSERT(0 <= index && index < get_num_elements(derived));
     };
-    return *(derived.data() +
-             index *
-                 get_stride<shape_traits::free_dimension<Shape>()>(derived));
+    return *(derived.data() + index * get_single_index_stride(derived.shape()));
   }
   decltype(auto) operator()(index_t index) const {
     const Derived& derived = static_cast<const Derived&>(*this);
@@ -182,14 +192,14 @@ struct NumericArrayConstAccessor
           std::make_index_sequence<shape_traits::num_dimensions<Shape>()>,
           Derived, Shape, Structure>,
       DETAIL_NS::NumericArraySingleIndexConstAccessor<
-          Derived, Shape, shape_traits::num_free_dimensions<Shape>() == 1 &&
+          Derived, Shape, shape_traits::num_free_dimensions<Shape>() <= 1 &&
                               shape_traits::num_dimensions<Shape>() != 1> {
   using DETAIL_NS::NumericArrayConstAccessorImpl<
       std::make_index_sequence<shape_traits::num_dimensions<Shape>()>, Derived,
       Shape, Structure>::
   operator();
   using DETAIL_NS::NumericArraySingleIndexConstAccessor<
-      Derived, Shape, shape_traits::num_free_dimensions<Shape>() == 1 &&
+      Derived, Shape, shape_traits::num_free_dimensions<Shape>() <= 1 &&
                           shape_traits::num_dimensions<Shape>() != 1>::
   operator();
 };
@@ -273,14 +283,14 @@ struct NumericArrayAccessor
           std::make_index_sequence<shape_traits::num_dimensions<Shape>()>,
           Derived, Shape, Structure>,
       DETAIL_NS::NumericArraySingleIndexAccessor<
-          Derived, Shape, shape_traits::num_free_dimensions<Shape>() == 1 &&
+          Derived, Shape, shape_traits::num_free_dimensions<Shape>() <= 1 &&
                               shape_traits::num_dimensions<Shape>() != 1> {
   using DETAIL_NS::NumericArrayAccessorImpl<
       std::make_index_sequence<shape_traits::num_dimensions<Shape>()>, Derived,
       Shape, Structure>::
   operator();
   using DETAIL_NS::NumericArraySingleIndexAccessor<
-      Derived, Shape, shape_traits::num_free_dimensions<Shape>() == 1 &&
+      Derived, Shape, shape_traits::num_free_dimensions<Shape>() <= 1 &&
                           shape_traits::num_dimensions<Shape>() != 1>::
   operator();
 };

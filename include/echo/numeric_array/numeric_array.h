@@ -73,7 +73,7 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
     return *this;
   }
 
-  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() == 1 &&
+  CONCEPT_MEMBER_REQUIRES(shape_traits::num_free_dimensions<Shape>() <= 1 &&
                           shape_traits::num_dimensions<Shape>() != 1)
   auto& operator=(InitializerMultilist<Scalar, 1> values) {
     this->initialize(values);
