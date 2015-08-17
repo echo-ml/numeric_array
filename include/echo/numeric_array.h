@@ -17,5 +17,6 @@ namespace echo {
 using echo::numeric_array::NumericArray;
 using echo::numeric_array::NumericArrayView;
 using echo::numeric_array::make_numeric_array;
+using echo::numeric_array::make_static_numeric_array;
 using echo::numeric_array::make_numeric_array_view;
 } //end namespace echo
