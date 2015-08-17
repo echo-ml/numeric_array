@@ -165,6 +165,47 @@ auto make_numeric_array(const ExecutionContext& execution_context, X&& x) {
   copy(execution_context, x, result);
   return result;
 }
+
+//------------------------------------------------------------------------------
+// make_static_numeric_array
+//------------------------------------------------------------------------------
+template <
+    class Scalar, class Structure, class... Extents,
+    CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                     execution_context::concept::structure<Structure>() &&
+                     and_c<k_array::concept::static_extent<Extents>()...>())>
+auto make_static_numeric_array(
+    const Dimensionality<Extents...>& dimensionality) {
+  auto shape = make_shape(dimensionality);
+  return NumericArray<Scalar, decltype(shape), Structure,
+                      memory::SimdStaticAllocator<Scalar>>(shape);
+}
+template <
+    class Scalar, class... Extents,
+    CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                     and_c<k_array::concept::static_extent<Extents>()...>())>
+auto make_static_numeric_array(
+    const Dimensionality<Extents...>& dimensionality) {
+  auto shape = make_shape(dimensionality);
+  return NumericArray<Scalar, decltype(shape),
+                      execution_context::structure::general,
+                      memory::SimdStaticAllocator<Scalar>>(shape);
+}
+template <class ExecutionContext, class X,
+          CONCEPT_REQUIRES(execution_context::concept::expression_executer<
+                               ExecutionContext>() &&
+                           concept::numeric_array<uncvref_t<X>>() &&
+                           k_array::concept::static_shape<
+                               shaped_traits::shape_type<uncvref_t<X>>>())>
+auto make_static_numeric_array(const ExecutionContext& execution_context,
+                               X&& x) {
+  using Scalar = numeric_array_traits::value_type<uncvref_t<X>>;
+  using Structure = numeric_array_traits::structure<uncvref_t<X>>;
+  auto result =
+      make_static_numeric_array<Scalar, Structure>(get_dimensionality(x));
+  copy(execution_context, x, result);
+  return result;
+}
 }
 }  // end namespace echo::numeric_array
 

@@ -64,7 +64,7 @@ TEST_CASE("numeric_array") {
 
   SECTION("reduction expression") {
     auto expr = sum_elements(array1);
-    CHECK(executer(expr) == 5*6/2);
+    CHECK(executer(expr) == 5 * 6 / 2);
   }
 
   SECTION("scalar assignment") {
@@ -92,7 +92,10 @@ TEST_CASE("numeric_array") {
 }
 
 TEST_CASE("make_numeric_array") {
-  auto n1 = make_numeric_array<double>(make_dimensionality(3, 4));
+  auto n1 = make_numeric_array<double>(make_dimensionality(3_index, 4_index));
+  auto n2 =
+      make_static_numeric_array<double>(make_dimensionality(3_index, 4_index));
+  auto n3 = make_static_numeric_array(executer, n1);
 }
 
 TEST_CASE("construction") {
