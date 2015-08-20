@@ -201,9 +201,10 @@ namespace DETAIL_NS {
 template <int K>
 struct KDimensionedExpression : Concept {
   template <class T>
-  auto require(T&& x) -> list<dimensioned_expression<T>(),
-                              dimensionality_traits::num_dimensions<
-                                  uncvref_t<decltype(x.shape())>>() == K>;
+  auto require(T&& x)
+      -> list<dimensioned_expression<T>(),
+              dimensionality_traits::num_dimensions<
+                  uncvref_t<decltype(x.dimensionality())>>() == K>;
 };
 }
 

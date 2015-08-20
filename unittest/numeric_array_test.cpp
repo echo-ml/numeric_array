@@ -261,3 +261,17 @@ TEST_CASE("iteration") {
   CHECK(*first3 == 22);
   CHECK(std::next(first3) == last3);
 }
+
+TEST_CASE("expression_iterator") {
+  NumericArray<double, ShapeC<3>> v1, v2;
+  v1 = {3, 4, 5};
+  v2 = {4, 5, 6};
+
+  auto e1 = v1*v2;
+  auto i = begin(e1);
+  auto last = end(e1);
+  CHECK(*i++ == 12);
+  CHECK(*i++ == 20);
+  CHECK(*i++ == 30);
+  CHECK(i == last);
+}
