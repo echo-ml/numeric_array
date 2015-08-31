@@ -123,6 +123,13 @@ class NumericArray
 };
 
 //------------------------------------------------------------------------------
+// StaticNumericArray
+//------------------------------------------------------------------------------
+template <class Scalar, class Shape, class Structure>
+using StaticNumericArray =
+    NumericArray<Scalar, Shape, Structure, memory::SimdStaticAllocator<Scalar>>;
+
+//------------------------------------------------------------------------------
 // make_numeric_array
 //------------------------------------------------------------------------------
 template <class Scalar, class Structure, class... Extents,
