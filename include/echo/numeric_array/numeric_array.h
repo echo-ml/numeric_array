@@ -87,7 +87,7 @@ class NumericArrayBase<std::index_sequence<Indexes...>, Scalar, Shape,
   const auto& shape() const { return _k_array.shape(); }
 
   auto& k_array() { return _k_array; }
-  auto& k_array() const { return _k_array; }
+  const auto& k_array() const { return _k_array; }
 
  private:
   KArrayBase _k_array;
