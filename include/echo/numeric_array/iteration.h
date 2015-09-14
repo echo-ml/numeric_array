@@ -87,8 +87,7 @@ template <class NumericArray,
           CONCEPT_REQUIRES(
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>() &&
-              shape_traits::num_free_dimensions<
-                  shaped_traits::shape_type<uncvref_t<NumericArray>>>() <= 1)>
+      concept::iterable_numeric_array<uncvref_t<NumericArray>>())>
 auto begin(NumericArray&& numeric_array) {
   return make_strided_iterator(numeric_array.data(),
                                get_single_index_stride(numeric_array.shape()));
@@ -101,8 +100,7 @@ template <class NumericArray,
           CONCEPT_REQUIRES(
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>() &&
-              shape_traits::num_free_dimensions<
-                  shaped_traits::shape_type<uncvref_t<NumericArray>>>() <= 1)>
+      concept::iterable_numeric_array<uncvref_t<NumericArray>>())>
 auto end(NumericArray&& numeric_array) {
   return make_strided_iterator(numeric_array.data(),
                                get_single_index_stride(numeric_array.shape())) +
@@ -116,8 +114,7 @@ template <class NumericArray,
           CONCEPT_REQUIRES(
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>() &&
-              shape_traits::num_free_dimensions<
-                  shaped_traits::shape_type<uncvref_t<NumericArray>>>() <= 1)>
+      concept::iterable_numeric_array<uncvref_t<NumericArray>>())>
 auto cbegin(NumericArray&& numeric_array) {
   return make_strided_iterator(numeric_array.const_data(),
                                get_single_index_stride(numeric_array.shape()));
@@ -130,8 +127,7 @@ template <class NumericArray,
           CONCEPT_REQUIRES(
               concept::numeric_array<execution_context::structure::general,
                                      uncvref_t<NumericArray>>() &&
-              shape_traits::num_free_dimensions<
-                  shaped_traits::shape_type<uncvref_t<NumericArray>>>() <= 1)>
+      concept::iterable_numeric_array<uncvref_t<NumericArray>>())>
 auto cend(NumericArray&& numeric_array) {
   return make_strided_iterator(numeric_array.const_data(),
                                get_single_index_stride(numeric_array.shape())) +

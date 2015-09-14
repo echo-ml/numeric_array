@@ -181,6 +181,26 @@ constexpr bool standard_numeric_array() {
 }
 
 //------------------------------------------------------------------------------
+// iterable_numeric_array
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct IterableNumericArray : Concept {
+  template<class T>
+  auto require(T&& a) -> list<
+    numeric_array<T>(),
+  shape_traits::num_free_dimensions<
+        uncvref_t<decltype(a.shape())>>() <= 1
+
+  >;
+};
+}
+
+template<class T>
+constexpr bool iterable_numeric_array() {
+  return models<DETAIL_NS::IterableNumericArray, T>();
+}
+
+//------------------------------------------------------------------------------
 // dimensioned_expression
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
